@@ -45,22 +45,31 @@ class music_playlist_admin {
         }
         ?>
 <div id="playlist_songs_wrapper">
-    <?php
-            foreach ($songs as $song) {
-                ?>
+    <?php foreach ($songs as $song): ?>
+    <?php if (is_array($song)): ?>
     <div class="playlist_song_item">
-        <input type="text" name="playlist_songs[]" value="<?php echo esc_attr($song); ?>" style="width:80%;" readonly />
-        <button type="button" class="remove_song_button">Remove</button>
+        <input type="text" name="playlist_songs[]" value="<?php echo esc_attr($song['url']); ?>"
+            class="playlist_song_input" readonly />
+        <input type="text" name="playlist_song_titles[]" value="<?php echo esc_attr($song['title']); ?>"
+            placeholder="Song Title" class="playlist_song_title_input" />
+        <input type="text" name="playlist_song_artists[]" value="<?php echo esc_attr($song['artist']); ?>"
+            placeholder="Artist" class="playlist_song_artist_input" />
+        <input type="hidden" name="playlist_song_images[]" value="<?php echo esc_attr($song['image']); ?>"
+            class="playlist_song_image_input" />
+        <img src="<?php echo esc_url($song['image']); ?>" style="width:50px;height:50px;"
+            class="playlist_song_image_preview" />
+        <button type="button" class="button remove_song_button">Remove</button>
     </div>
-    <?php
-            }
-            ?>
+    <?php endif; ?>
+    <?php endforeach; ?>
 </div>
 <p>
-    <button type="button" id="add_song_button"><?php _e('Add Song'); ?></button>
+    <button type="button" id="add_song_button" class="button button-primary"><?php _e('Add Song'); ?></button>
 </p>
 <?php
     }
+    
+    
     
     
     function save_playlist_songs($post_id) {
@@ -78,29 +87,51 @@ class music_playlist_admin {
             }
         }
     
-        if (!isset($_POST['playlist_songs'])) {
-            return;
+        $songs = array();
+        if (isset($_POST['playlist_songs'])) {
+            foreach ($_POST['playlist_songs'] as $index => $url) {
+                $songs[] = array(
+                    'url' => esc_url_raw($url),
+                    'title' => sanitize_text_field($_POST['playlist_song_titles'][$index]),
+                    'artist' => sanitize_text_field($_POST['playlist_song_artists'][$index]),
+                    'image' => esc_url_raw($_POST['playlist_song_images'][$index])
+                );
+            }
+            update_post_meta($post_id, '_playlist_songs', $songs);
         }
-    
-        $songs = array_map('esc_url_raw', $_POST['playlist_songs']);
-        update_post_meta($post_id, '_playlist_songs', $songs);
     }
+    
     
     
     function display_playlist($content) {
         if (is_singular('playlist')) {
             $songs = get_post_meta(get_the_ID(), '_playlist_songs', true);
             if ($songs) {
-                $playlist_html = '<ul class="playlist">';
+                $playlist_html = '<div class="music-player">';
+                $playlist_html .= '<div class="player-controls">';
+                $playlist_html .= '<button class="play-pause">Play/Pause</button>';
+                $playlist_html .= '<button class="prev">Prev</button>';
+                $playlist_html .= '<button class="next">Next</button>';
+                $playlist_html .= '<input type="range" class="volume" min="0" max="1" step="0.01">';
+                $playlist_html .= '<input type="range" class="seekbar" value="0">';
+                $playlist_html .= '</div>';
+                $playlist_html .= '<ul class="playlist">';
                 foreach ($songs as $song) {
-                    $playlist_html .= '<li><audio controls><source src="' . esc_url($song) . '" type="audio/mpeg">Your browser does not support the audio element.</audio></li>';
+                    $playlist_html .= '<li class="playlist_item" data-src="' . esc_url($song['url']) . '">';
+                    if (!empty($song['image'])) {
+                        $playlist_html .= '<img src="' . esc_url($song['image']) . '" style="width:50px;height:50px;" />';
+                    }
+                    $playlist_html .= '<span class="song-title">' . esc_html($song['title']) . ' - ' . esc_html($song['artist']) . '</span>';
+                    $playlist_html .= '</li>';
                 }
                 $playlist_html .= '</ul>';
+                $playlist_html .= '</div>';
                 $content .= $playlist_html;
             }
         }
         return $content;
     }
+    
     
 
     function enqueue_admin_scripts($hook) {
@@ -164,6 +195,8 @@ class music_playlist_admin {
         if (is_singular('playlist')) {
             // Enqueue the custom CSS file
             wp_enqueue_style('playlist-custom-style', plugin_dir_url(__FILE__) . 'playlist-style.css');
+            // Enqueue the custom JS file
+            wp_enqueue_script('playlist-custom-script', plugin_dir_url(__FILE__) . 'playlist-script.js', array('jquery'), null, true);
         }
     }
     
