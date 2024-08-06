@@ -2,10 +2,12 @@
 .music-player {
     position: relative;
     width: 100%;
-    background: #222;
-    color: #fff;
+    background: #F5F5F5; /* رنگ پس‌زمینه */
+    color: #000000; /* رنگ متن */
     padding: 20px;
     box-sizing: border-box;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .music-player .player-controls {
@@ -16,21 +18,45 @@
 }
 
 .music-player .player-controls button {
-    background: #444;
-    color: #fff;
+    background: #00BFFF; /* رنگ بیس */
+    color: #FFFFFF; /* رنگ متن */
     border: none;
     padding: 10px 20px;
     cursor: pointer;
     border-radius: 5px;
+    transition: background-color 0.3s;
 }
 
 .music-player .player-controls button:hover {
-    background: #666;
+    background: #87CEEB; /* رنگ ثانویه */
 }
 
 .music-player .player-controls input[type=range] {
-    width: 100px;
+    width: 120px;
     margin: 0 10px;
+    -webkit-appearance: none; /* WebKit browsers */
+    -moz-appearance: none; /* Firefox */
+    appearance: none; /* Standard */
+    background: #87CEEB; /* رنگ ثانویه */
+    height: 8px;
+    border-radius: 5px;
+}
+
+.music-player .player-controls input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; /* WebKit browsers */
+    background: #FF4500; /* رنگ اکسان */
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.music-player .player-controls input[type=range]::-moz-range-thumb {
+    background: #FF4500; /* رنگ اکسان */
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    cursor: pointer;
 }
 
 .playlist {
@@ -42,15 +68,18 @@
 .playlist .playlist_item {
     padding: 10px;
     margin: 5px 0;
-    background: #333;
+    background: #FFFFFF; /* رنگ پس‌زمینه آیتم‌ها */
     border-radius: 5px;
     cursor: pointer;
+    transition: background-color 0.3s;
+    border: 1px solid #87CEEB; /* رنگ ثانویه */
 }
 
 .playlist .playlist_item:hover {
-    background: #444;
+    background: #87CEEB; /* رنگ ثانویه */
+    color: #000000; /* رنگ متن */
 }
 
 .playlist .playlist_item .song-title {
-    color: #fff;
+    color: #000000; /* رنگ متن */
 }

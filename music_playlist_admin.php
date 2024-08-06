@@ -54,10 +54,6 @@ class music_playlist_admin {
             placeholder="Song Title" class="playlist_song_title_input" />
         <input type="text" name="playlist_song_artists[]" value="<?php echo esc_attr($song['artist']); ?>"
             placeholder="Artist" class="playlist_song_artist_input" />
-        <input type="hidden" name="playlist_song_images[]" value="<?php echo esc_attr($song['image']); ?>"
-            class="playlist_song_image_input" />
-        <img src="<?php echo esc_url($song['image']); ?>" style="width:50px;height:50px;"
-            class="playlist_song_image_preview" />
         <button type="button" class="button remove_song_button">Remove</button>
     </div>
     <?php endif; ?>
@@ -94,8 +90,7 @@ class music_playlist_admin {
                     'url' => esc_url_raw($url),
                     'title' => sanitize_text_field($_POST['playlist_song_titles'][$index]),
                     'artist' => sanitize_text_field($_POST['playlist_song_artists'][$index]),
-                    'image' => esc_url_raw($_POST['playlist_song_images'][$index])
-                );
+                    );
             }
             update_post_meta($post_id, '_playlist_songs', $songs);
         }
@@ -113,14 +108,14 @@ class music_playlist_admin {
                 $playlist_html .= '<button class="prev">Prev</button>';
                 $playlist_html .= '<button class="next">Next</button>';
                 $playlist_html .= '<input type="range" class="volume" min="0" max="1" step="0.01">';
+                $playlist_html .= '<span class="volume-value">100</span>'; // نمایش مقدار صدا
+                $playlist_html .= '<span class="current-time">00:00</span>';
                 $playlist_html .= '<input type="range" class="seekbar" value="0">';
+                $playlist_html .= '<span class="duration-time">00:00</span>';
                 $playlist_html .= '</div>';
                 $playlist_html .= '<ul class="playlist">';
                 foreach ($songs as $song) {
                     $playlist_html .= '<li class="playlist_item" data-src="' . esc_url($song['url']) . '">';
-                    if (!empty($song['image'])) {
-                        $playlist_html .= '<img src="' . esc_url($song['image']) . '" style="width:50px;height:50px;" />';
-                    }
                     $playlist_html .= '<span class="song-title">' . esc_html($song['title']) . ' - ' . esc_html($song['artist']) . '</span>';
                     $playlist_html .= '</li>';
                 }
@@ -131,6 +126,8 @@ class music_playlist_admin {
         }
         return $content;
     }
+    
+    
     
     
 

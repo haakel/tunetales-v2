@@ -16,7 +16,6 @@ jQuery(document).ready(function ($) {
 
             var title = prompt('Enter Song Title:');
             var artist = prompt('Enter Artist Name:');
-            var image = prompt('Enter Image URL:');
 
             var data = {
                 action: 'save_song_to_custom_directory',
@@ -24,7 +23,6 @@ jQuery(document).ready(function ($) {
                 post_id: $('#post_ID').val(),
                 title: title,
                 artist: artist,
-                image: image,
                 _ajax_nonce: playlist_admin_ajax.nonce
             };
 
@@ -36,8 +34,6 @@ jQuery(document).ready(function ($) {
                         '<input type="text" name="playlist_songs[]" value="' + new_song_url + '" style="width:80%;" readonly />' +
                         '<input type="text" name="playlist_song_titles[]" value="' + title + '" placeholder="Song Title" class="playlist_song_title_input" />' +
                         '<input type="text" name="playlist_song_artists[]" value="' + artist + '" placeholder="Artist" class="playlist_song_artist_input" />' +
-                        '<input type="hidden" name="playlist_song_images[]" value="' + image + '" class="playlist_song_image_input" />' +
-                        '<img src="' + image + '" style="width:50px;height:50px;" class="playlist_song_image_preview" />' +
                         '<button type="button" class="remove_song_button">Remove</button>' +
                         '</div>'
                     );
