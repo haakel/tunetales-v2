@@ -104,11 +104,11 @@ class music_playlist_admin {
             if ($songs) {
                 $playlist_html = '<div class="music-player">';
                 $playlist_html .= '<div class="player-controls">';
-                $playlist_html .= '<button class="play-pause">Play/Pause</button>';
-                $playlist_html .= '<button class="prev">Prev</button>';
-                $playlist_html .= '<button class="next">Next</button>';
+                $playlist_html .= '<button class="prev"><i class="fas fa-forward"></i></button>';
+                $playlist_html .= '<button class="play-pause"><i class="fas fa-play"></i></button>';
+                $playlist_html .= '<button class="next"><i class="fas fa-backward"></i></button>';
                 $playlist_html .= '<input type="range" class="volume" min="0" max="1" step="0.01">';
-                $playlist_html .= '<span class="volume-value">100</span>'; // نمایش مقدار صدا
+                $playlist_html .= '<span class="volume-value">100</span>';
                 $playlist_html .= '<span class="current-time">00:00</span>';
                 $playlist_html .= '<input type="range" class="seekbar" value="0">';
                 $playlist_html .= '<span class="duration-time">00:00</span>';
@@ -126,6 +126,7 @@ class music_playlist_admin {
         }
         return $content;
     }
+    
     
     
     
@@ -171,6 +172,11 @@ class music_playlist_admin {
     
         $new_song_path = $custom_dir . '/' . basename($song_path);
     
+        // Check if a song with the same name already exists in the directory
+        if (file_exists($new_song_path)) {
+            wp_send_json_error(array('message' => 'A song with this name already exists.'));
+        }
+    
         // Log the paths for debugging
         error_log('Song Path: ' . $song_path);
         error_log('New Song Path: ' . $new_song_path);
@@ -186,7 +192,7 @@ class music_playlist_admin {
             wp_send_json_success(array('new_song_url' => $new_song_url));
         }
     }
-
+    
     function enqueue_custom_post_type_styles() {
         // Check if we are on a single post of type 'playlist'
         if (is_singular('playlist')) {
@@ -195,6 +201,8 @@ class music_playlist_admin {
             // Enqueue the custom JS file
             wp_enqueue_script('playlist-custom-script', plugin_dir_url(__FILE__) . 'playlist-script.js', array('jquery'), null, true);
         }
+        wp_enqueue_style('font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css');
+
     }
     
 }

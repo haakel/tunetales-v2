@@ -17,14 +17,14 @@ jQuery(document).ready(function ($) {
             }
             audio.play();
             isPlaying = true;
-            $('.play-pause').text('Pause');
+            $('.play-pause i').removeClass('fa-play').addClass('fa-pause');
         }
     }
 
     function pauseSong() {
         audio.pause();
         isPlaying = false;
-        $('.play-pause').text('Play');
+        $('.play-pause i').removeClass('fa-pause').addClass('fa-play');
     }
 
     function togglePlayPause() {
@@ -34,7 +34,7 @@ jQuery(document).ready(function ($) {
             if (audio.paused && audio.src) {
                 audio.play();
                 isPlaying = true;
-                $('.play-pause').text('Pause');
+                $('.play-pause i').removeClass('fa-play').addClass('fa-pause');
             } else {
                 playSong(currentSongIndex);
             }
@@ -69,7 +69,6 @@ jQuery(document).ready(function ($) {
     });
 
     audio.addEventListener('loadedmetadata', function () {
-        // تنظیم مقدار حداکثری نوار پیشرفت به مدت زمان آهنگ
         $('.seekbar').attr('max', audio.duration);
         $('.duration-time').text(formatTime(audio.duration));
     });
@@ -83,7 +82,6 @@ jQuery(document).ready(function ($) {
 
     $('.seekbar').on('input', function () {
         isDragging = true;
-        // تغییر زمان فعلی بر اساس مقدار نوار پیشرفت
         audio.currentTime = $(this).val();
         $('.current-time').text(formatTime(audio.currentTime));
     });

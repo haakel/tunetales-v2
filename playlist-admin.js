@@ -13,9 +13,23 @@ jQuery(document).ready(function ($) {
             var attachment = file_frame.state().get('selection').first().toJSON();
             var song_url = attachment.url;
             var song_id = attachment.id;
-
             var title = prompt('Enter Song Title:');
             var artist = prompt('Enter Artist Name:');
+
+            var isDuplicate = false;
+
+            // Check if the song is already in the list
+            $('input[name="playlist_songs[]"]').each(function () {
+                if ($(this).val() === song_url) {
+                    isDuplicate = true;
+                    return false;
+                }
+            });
+
+            if (isDuplicate) {
+                alert('Error: A song with this URL has already been added.');
+                return;
+            }
 
             var data = {
                 action: 'save_song_to_custom_directory',
