@@ -4,6 +4,7 @@ jQuery(document).ready(function ($) {
     let audio = new Audio();
     let isPlaying = false;
     let isDragging = false;
+    let isShuffle = false;
 
     $('.playlist_item').each(function () {
         songs.push($(this).data('src'));
@@ -53,13 +54,27 @@ jQuery(document).ready(function ($) {
         togglePlayPause();
     });
 
+    $('.playlist_item').on('click', function () {
+        let index = $(this).index();
+        currentSongIndex = index;
+        playSong(currentSongIndex);
+    });
+
     $('.next').on('click', function () {
-        currentSongIndex = (currentSongIndex + 1) % songs.length;
+        if (isShuffle) {
+            currentSongIndex = Math.floor(Math.random() * songs.length);
+        } else {
+            currentSongIndex = (currentSongIndex + 1) % songs.length;
+        }
         playSong(currentSongIndex);
     });
 
     $('.prev').on('click', function () {
-        currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
+        if (isShuffle) {
+            currentSongIndex = Math.floor(Math.random() * songs.length);
+        } else {
+            currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
+        }
         playSong(currentSongIndex);
     });
 
@@ -90,8 +105,17 @@ jQuery(document).ready(function ($) {
         isDragging = false;
     });
 
+    $('.shuffle').on('click', function () {
+        isShuffle = !isShuffle;
+        $(this).toggleClass('active'); // اضافه کردن کلاس اکتیو به دکمه شافل
+    });
+
     audio.addEventListener('ended', function () {
-        currentSongIndex = (currentSongIndex + 1) % songs.length;
+        if (isShuffle) {
+            currentSongIndex = Math.floor(Math.random() * songs.length);
+        } else {
+            currentSongIndex = (currentSongIndex + 1) % songs.length;
+        }
         playSong(currentSongIndex);
     });
 });

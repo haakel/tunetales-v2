@@ -101,12 +101,13 @@ class music_playlist_admin {
     function display_playlist($content) {
         if (is_singular('playlist')) {
             $songs = get_post_meta(get_the_ID(), '_playlist_songs', true);
-            if ($songs) {
+            if ($songs) {     
                 $playlist_html = '<div class="music-player">';
                 $playlist_html .= '<div class="player-controls">';
                 $playlist_html .= '<button class="prev"><i class="fas fa-forward"></i></button>';
                 $playlist_html .= '<button class="play-pause"><i class="fas fa-play"></i></button>';
                 $playlist_html .= '<button class="next"><i class="fas fa-backward"></i></button>';
+                $playlist_html .= '<button class="shuffle"><i class="fas fa-random"></i></button>';
                 $playlist_html .= '<input type="range" class="volume" min="0" max="1" step="0.01">';
                 $playlist_html .= '<span class="volume-value">100</span>';
                 $playlist_html .= '<span class="current-time">00:00</span>';
@@ -117,6 +118,7 @@ class music_playlist_admin {
                 foreach ($songs as $song) {
                     $playlist_html .= '<li class="playlist_item" data-src="' . esc_url($song['url']) . '">';
                     $playlist_html .= '<span class="song-title">' . esc_html($song['title']) . ' - ' . esc_html($song['artist']) . '</span>';
+                    $playlist_html .= '<a href="' . esc_url($song['url']) . '" class="download-song" download><i class="fas fa-download"></i></a>'; // دکمه دانلود
                     $playlist_html .= '</li>';
                 }
                 $playlist_html .= '</ul>';
