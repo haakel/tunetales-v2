@@ -50,6 +50,14 @@ jQuery(document).ready(function ($) {
         return minutesStr + ':' + secondsStr;
     }
 
+    function getNextSongIndex(currentIndex) {
+        let nextIndex;
+        do {
+            nextIndex = Math.floor(Math.random() * songs.length);
+        } while (nextIndex === currentIndex);
+        return nextIndex;
+    }
+
     $('.play-pause').on('click', function () {
         togglePlayPause();
     });
@@ -62,7 +70,7 @@ jQuery(document).ready(function ($) {
 
     $('.next').on('click', function () {
         if (isShuffle) {
-            currentSongIndex = Math.floor(Math.random() * songs.length);
+            currentSongIndex = getNextSongIndex(currentSongIndex);
         } else {
             currentSongIndex = (currentSongIndex + 1) % songs.length;
         }
@@ -71,7 +79,7 @@ jQuery(document).ready(function ($) {
 
     $('.prev').on('click', function () {
         if (isShuffle) {
-            currentSongIndex = Math.floor(Math.random() * songs.length);
+            currentSongIndex = getNextSongIndex(currentSongIndex);
         } else {
             currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
         }
@@ -107,12 +115,16 @@ jQuery(document).ready(function ($) {
 
     $('.shuffle').on('click', function () {
         isShuffle = !isShuffle;
-        $(this).toggleClass('active'); // اضافه کردن کلاس اکتیو به دکمه شافل
+        $(this).toggleClass('active');
+        if (isShuffle) {
+            currentSongIndex = getNextSongIndex(currentSongIndex);
+            playSong(currentSongIndex); // اگر در حالت شافل قرار گرفت، آهنگ تصادفی را پخش کنید
+        }
     });
 
     audio.addEventListener('ended', function () {
         if (isShuffle) {
-            currentSongIndex = Math.floor(Math.random() * songs.length);
+            currentSongIndex = getNextSongIndex(currentSongIndex);
         } else {
             currentSongIndex = (currentSongIndex + 1) % songs.length;
         }
