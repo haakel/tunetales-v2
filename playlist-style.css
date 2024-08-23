@@ -2,12 +2,13 @@
 .music-player {
     position: relative;
     width: 100%;
-    background: #F5F5F5; /* رنگ پس‌زمینه */
-    color: #000000; /* رنگ متن */
+    background: #F5F5F5;
+    color: #000000;
     padding: 20px;
     box-sizing: border-box;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 800px !important
 }
 
 .music-player .player-controls {
@@ -72,13 +73,15 @@ button.shuffle.active i {
 .playlist .playlist_item {
     padding: 10px;
     margin: 5px 0;
-    background: #FFFFFF; /* رنگ پس‌زمینه آیتم‌ها */
+    background: #FFFFFF;
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s;
-    border: 1px solid #87CEEB; /* رنگ ثانویه */
+    border: 1px solid #87CEEB;
+    display: flex;
+    justify-content: space-between;
+    align-items: center
 }
-
 .playlist .playlist_item:hover {
     background: #87CEEB; /* رنگ ثانویه */
     color: #000000; /* رنگ متن */
@@ -86,4 +89,10 @@ button.shuffle.active i {
 
 .playlist .playlist_item .song-title {
     color: #000000; /* رنگ متن */
+}
+.range-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
