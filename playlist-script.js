@@ -1,4 +1,4 @@
-jQuery(document).ready(function ($) {
+jQuery(document).ready(function () {
     let currentSongIndex = 0;
     let songs = [];
     let audio = new Audio();
@@ -6,8 +6,8 @@ jQuery(document).ready(function ($) {
     let isDragging = false;
     let isShuffle = false;
 
-    $('.playlist_item').each(function () {
-        songs.push($(this).data('src'));
+    jQuery('.playlist_item').each(function () {
+        songs.push(jQuery(this).data('src'));
     });
 
     function playSong(index) {
@@ -18,14 +18,14 @@ jQuery(document).ready(function ($) {
             }
             audio.play();
             isPlaying = true;
-            $('.play-pause i').removeClass('fa-play').addClass('fa-pause');
+            jQuery('.play-pause i').removeClass('fa-play').addClass('fa-pause');
         }
     }
 
     function pauseSong() {
         audio.pause();
         isPlaying = false;
-        $('.play-pause i').removeClass('fa-pause').addClass('fa-play');
+        jQuery('.play-pause i').removeClass('fa-pause').addClass('fa-play');
     }
 
     function togglePlayPause() {
@@ -35,7 +35,7 @@ jQuery(document).ready(function ($) {
             if (audio.paused && audio.src) {
                 audio.play();
                 isPlaying = true;
-                $('.play-pause i').removeClass('fa-play').addClass('fa-pause');
+                jQuery('.play-pause i').removeClass('fa-play').addClass('fa-pause');
             } else {
                 playSong(currentSongIndex);
             }
@@ -58,18 +58,18 @@ jQuery(document).ready(function ($) {
         return nextIndex;
     }
 
-    $('.play-pause').on('click', function () {
+    jQuery('.play-pause').on('click', function () {
         togglePlayPause();
     });
 
-    $('.playlist_item').on('click', function () {
-        let index = $(this).index();
+    jQuery('.playlist_item').on('click', function () {
+        let index = jQuery(this).index();
         currentSongIndex = index;
         playSong(currentSongIndex);
     });
 
-    $('.next').on('click', function () {
-        if (isShuffle) {
+    jQuery('.next').on('click', function () {
+        if (isShuffle && songs.length > 1) {
             currentSongIndex = getNextSongIndex(currentSongIndex);
         } else {
             currentSongIndex = (currentSongIndex + 1) % songs.length;
@@ -77,8 +77,8 @@ jQuery(document).ready(function ($) {
         playSong(currentSongIndex);
     });
 
-    $('.prev').on('click', function () {
-        if (isShuffle) {
+    jQuery('.prev').on('click', function () {
+        if (isShuffle && songs.length > 1) {
             currentSongIndex = getNextSongIndex(currentSongIndex);
         } else {
             currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
@@ -86,52 +86,49 @@ jQuery(document).ready(function ($) {
         playSong(currentSongIndex);
     });
 
-$('.volume-slider').on('input', function () {
-    let volumeValue = parseFloat($(this).val());
-
-    // Set the volume for the audio element
-    audio.volume = volumeValue;
-
-    // Display the volume percentage
-    $('.volume-display').text(Math.round(volumeValue * 100));
-});
-
-
-    
+    jQuery('.volume-slider').on('input', function () {
+        let volumeValue = parseFloat(jQuery(this).val());
+        audio.volume = volumeValue;
+        jQuery('.volume-display').text(Math.round(volumeValue * 100));
+    });
 
     audio.addEventListener('loadedmetadata', function () {
-        $('.seekbar').attr('max', audio.duration);
-        $('.duration-time').text(formatTime(audio.duration));
+        jQuery('.seekbar').attr('max', audio.duration);
+        jQuery('.duration-time').text(formatTime(audio.duration));
     });
 
     audio.addEventListener('timeupdate', function () {
         if (!isDragging) {
-            $('.seekbar').val(audio.currentTime);
-            $('.current-time').text(formatTime(audio.currentTime));
+            jQuery('.seekbar').val(audio.currentTime);
+            jQuery('.current-time').text(formatTime(audio.currentTime));
         }
     });
 
-    $('.seekbar').on('input', function () {
+    jQuery('.seekbar').on('input', function () {
         isDragging = true;
-        audio.currentTime = $(this).val();
-        $('.current-time').text(formatTime(audio.currentTime));
+        audio.currentTime = jQuery(this).val();
+        jQuery('.current-time').text(formatTime(audio.currentTime));
     });
 
-    $('.seekbar').on('change', function () {
+    jQuery('.seekbar').on('change', function () {
         isDragging = false;
     });
 
-    $('.shuffle').on('click', function () {
-        isShuffle = !isShuffle;
-        $(this).toggleClass('active');
-        if (isShuffle) {
-            currentSongIndex = getNextSongIndex(currentSongIndex);
-            playSong(currentSongIndex); // اگر در حالت شافل قرار گرفت، آهنگ تصادفی را پخش کنید
+    jQuery('.shuffle').on('click', function () {
+        if (songs.length > 1) {
+            isShuffle = !isShuffle;
+            jQuery(this).toggleClass('active');
+            if (isShuffle) {
+                currentSongIndex = getNextSongIndex(currentSongIndex);
+                playSong(currentSongIndex);
+            }
+        } else {
+            alert('Shuffle mode requires more than one song in the playlist.');
         }
     });
 
     audio.addEventListener('ended', function () {
-        if (isShuffle) {
+        if (isShuffle && songs.length > 1) {
             currentSongIndex = getNextSongIndex(currentSongIndex);
         } else {
             currentSongIndex = (currentSongIndex + 1) % songs.length;
