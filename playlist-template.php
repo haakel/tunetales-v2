@@ -6,9 +6,11 @@
         <button class="next"><i class="fas fa-backward"></i></button>
         <button class="shuffle"><i class="fas fa-random"></i></button>
         <div class="range-container">
-            <div class="volume"> <input type="range" class="volume" min="0" max="1" step="0.01" value="100">
-                <span class="volume-value">100</span>
+            <div class="volume">
+                <input type="range" class="volume-slider" min="0" max="1" step="0.01" value="1">
+                <span class="volume-display">100</span>
             </div>
+
             <div class="time"><span class="current-time">00:00</span>
                 <input type="range" class="seekbar" value="0">
                 <span class="duration-time">00:00</span>

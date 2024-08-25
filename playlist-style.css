@@ -96,3 +96,12 @@ button.shuffle.active i {
     align-items: center;
     justify-content: center;
 }
+
+@media only screen and (max-width: 600px){
+    .range-container {
+        flex-direction: column;
+    }
+    .btn-controls{
+        display: flex;
+    }
+}

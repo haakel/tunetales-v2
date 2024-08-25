@@ -86,10 +86,18 @@ jQuery(document).ready(function ($) {
         playSong(currentSongIndex);
     });
 
-    $('.volume').on('input', function () {
-        audio.volume = $(this).val();
-        $('.volume-value').text(Math.round(audio.volume * 100));
-    });
+$('.volume-slider').on('input', function () {
+    let volumeValue = parseFloat($(this).val());
+
+    // Set the volume for the audio element
+    audio.volume = volumeValue;
+
+    // Display the volume percentage
+    $('.volume-display').text(Math.round(volumeValue * 100));
+});
+
+
+    
 
     audio.addEventListener('loadedmetadata', function () {
         $('.seekbar').attr('max', audio.duration);
