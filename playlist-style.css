@@ -96,10 +96,16 @@ button.shuffle.active i {
     align-items: center;
     justify-content: center;
 }
+.playlist_item.playing {
+    background: #bbfff6; /* رنگ پس‌زمینه وقتی آهنگ در حال پخش است */
+    color: #000000; /* رنگ متن برای وضوح بیشتر */
+}
+
 
 @media only screen and (max-width: 600px){
     .range-container {
         flex-direction: column;
+
     }
     .btn-controls{
         display: flex;

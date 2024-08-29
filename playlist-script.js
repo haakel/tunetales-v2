@@ -19,6 +19,11 @@ jQuery(document).ready(function () {
             audio.play();
             isPlaying = true;
             jQuery('.play-pause i').removeClass('fa-play').addClass('fa-pause');
+            
+            // حذف کلاس playing از همه آیتم‌ها
+            jQuery('.playlist_item').removeClass('playing');
+            // اضافه کردن کلاس playing به آیتم در حال پخش
+            jQuery('.playlist_item').eq(index).addClass('playing');
         }
     }
 
@@ -134,5 +139,14 @@ jQuery(document).ready(function () {
             currentSongIndex = (currentSongIndex + 1) % songs.length;
         }
         playSong(currentSongIndex);
+    });
+
+    audio.addEventListener('progress', function () {
+        if (audio.buffered.length > 0) {
+            let bufferedEnd = audio.buffered.end(audio.buffered.length - 1);
+            let duration = audio.duration;
+            let bufferedPercentage = (bufferedEnd / duration) * 100;
+            jQuery('.buffering-bar').css('width', bufferedPercentage + '%');
+        }
     });
 });
