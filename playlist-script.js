@@ -1,152 +1,186 @@
-jQuery(document).ready(function () {
-    let currentSongIndex = 0;
-    let songs = [];
-    let audio = new Audio();
-    let isPlaying = false;
-    let isDragging = false;
-    let isShuffle = false;
+class MusicPlayer {
+  constructor() {
+    this.audio = new Audio();
+    this.songs = [];
+    this.currentSongIndex = 0;
+    this.isPlaying = false;
+    this.isDragging = false;
+    this.isShuffle = false;
 
-    jQuery('.playlist_item').each(function () {
-        songs.push(jQuery(this).data('src'));
+    this.initElements();
+    this.loadSongs();
+    this.bindEvents();
+  }
+
+  initElements() {
+    this.$playPauseBtn = jQuery(".play-pause");
+    this.$nextBtn = jQuery(".next");
+    this.$prevBtn = jQuery(".prev");
+    this.$shuffleBtn = jQuery(".shuffle");
+    this.$volumeSlider = jQuery(".volume-slider");
+    this.$seekbar = jQuery(".seekbar");
+    this.$playlistItems = jQuery(".playlist_item");
+  }
+
+  loadSongs() {
+    this.$playlistItems.each((_, item) => {
+      this.songs.push(jQuery(item).data("src"));
     });
+  }
 
-    function playSong(index) {
-        if (index >= 0 && index < songs.length) {
-            if (audio.src !== songs[index]) {
-                audio.src = songs[index];
-                audio.load();
-            }
-            audio.play();
-            isPlaying = true;
-            jQuery('.play-pause i').removeClass('fa-play').addClass('fa-pause');
-            
-            // حذف کلاس playing از همه آیتم‌ها
-            jQuery('.playlist_item').removeClass('playing');
-            // اضافه کردن کلاس playing به آیتم در حال پخش
-            jQuery('.playlist_item').eq(index).addClass('playing');
-        }
+  bindEvents() {
+    this.$playPauseBtn.on("click", () => this.togglePlayPause());
+    this.$nextBtn.on("click", () => this.nextSong());
+    this.$prevBtn.on("click", () => this.prevSong());
+    this.$shuffleBtn.on("click", () => this.toggleShuffle());
+    this.$volumeSlider.on("input", (e) => this.setVolume(e.target.value));
+    this.$seekbar.on("input", (e) => this.seek(e.target.value));
+    this.$seekbar.on("change", () => {
+      this.isDragging = false;
+    });
+    this.$playlistItems.on("click", (e) =>
+      this.playFromList(jQuery(e.currentTarget).index())
+    );
+
+    this.audio.addEventListener("loadedmetadata", () => this.updateMetadata());
+    this.audio.addEventListener("timeupdate", () => this.updateTime());
+    this.audio.addEventListener("ended", () => this.handleSongEnd());
+    this.audio.addEventListener("progress", () => this.updateBuffering());
+  }
+
+  playSong(index) {
+    if (index < 0 || index >= this.songs.length) return;
+
+    // اگه آهنگ عوض شده، منبع رو تنظیم کن
+    if (this.currentSongIndex !== index || !this.audio.src) {
+      this.currentSongIndex = index;
+      this.audio.src = this.songs[index];
+      this.audio.load(); // بارگذاری آهنگ جدید
     }
 
-    function pauseSong() {
-        audio.pause();
-        isPlaying = false;
-        jQuery('.play-pause i').removeClass('fa-pause').addClass('fa-play');
+    this.audio.play();
+    this.isPlaying = true;
+    this.updateUI();
+  }
+
+  pauseSong() {
+    this.audio.pause();
+    this.isPlaying = false;
+    this.updateUI();
+  }
+
+  togglePlayPause() {
+    if (this.isPlaying) {
+      this.pauseSong();
+    } else {
+      // اگه آهنگ قبلاً انتخاب شده و فقط پاز شده، از همونجا ادامه بده
+      if (this.audio.src) {
+        this.audio.play();
+        this.isPlaying = true;
+        this.updateUI();
+      } else {
+        // اگه هنوز آهنگی انتخاب نشده، از آهنگ فعلی شروع کن
+        this.playSong(this.currentSongIndex);
+      }
     }
+  }
 
-    function togglePlayPause() {
-        if (isPlaying) {
-            pauseSong();
-        } else {
-            if (audio.paused && audio.src) {
-                audio.play();
-                isPlaying = true;
-                jQuery('.play-pause i').removeClass('fa-play').addClass('fa-pause');
-            } else {
-                playSong(currentSongIndex);
-            }
-        }
+  nextSong() {
+    this.currentSongIndex = this.isShuffle
+      ? this.getRandomIndex()
+      : (this.currentSongIndex + 1) % this.songs.length;
+    this.playSong(this.currentSongIndex);
+  }
+
+  prevSong() {
+    this.currentSongIndex = this.isShuffle
+      ? this.getRandomIndex()
+      : (this.currentSongIndex - 1 + this.songs.length) % this.songs.length;
+    this.playSong(this.currentSongIndex);
+  }
+
+  toggleShuffle() {
+    if (this.songs.length <= 1) {
+      alert("Shuffle mode requires more than one song.");
+      return;
     }
+    this.isShuffle = !this.isShuffle;
+    this.$shuffleBtn.toggleClass("active");
+    if (this.isShuffle) this.nextSong();
+  }
 
-    function formatTime(seconds) {
-        const minutes = Math.floor(seconds / 60);
-        seconds = Math.floor(seconds % 60);
-        const minutesStr = minutes < 10 ? '0' + minutes : minutes;
-        const secondsStr = seconds < 10 ? '0' + seconds : seconds;
-        return minutesStr + ':' + secondsStr;
+  setVolume(value) {
+    this.audio.volume = parseFloat(value);
+    jQuery(".volume-display").text(Math.round(value * 100));
+  }
+
+  seek(value) {
+    this.isDragging = true;
+    this.audio.currentTime = value;
+    jQuery(".current-time").text(this.formatTime(value));
+  }
+
+  playFromList(index) {
+    this.currentSongIndex = index;
+    this.playSong(index);
+  }
+
+  updateUI() {
+    const iconClass = this.isPlaying ? "fa-pause" : "fa-play";
+    this.$playPauseBtn
+      .find("i")
+      .removeClass("fa-play fa-pause")
+      .addClass(iconClass);
+    this.$playlistItems
+      .removeClass("playing")
+      .eq(this.currentSongIndex)
+      .addClass("playing");
+  }
+
+  updateMetadata() {
+    this.$seekbar.attr("max", this.audio.duration);
+    jQuery(".duration-time").text(this.formatTime(this.audio.duration));
+  }
+
+  updateTime() {
+    if (!this.isDragging) {
+      const progress =
+        (this.audio.currentTime / this.audio.duration) * 100 || 0;
+      this.$seekbar.val(this.audio.currentTime);
+      this.$seekbar.css("--value", `${progress}%`);
+      jQuery(".current-time").text(this.formatTime(this.audio.currentTime));
     }
+  }
 
-    function getNextSongIndex(currentIndex) {
-        let nextIndex;
-        do {
-            nextIndex = Math.floor(Math.random() * songs.length);
-        } while (nextIndex === currentIndex);
-        return nextIndex;
+  handleSongEnd() {
+    this.nextSong();
+  }
+
+  updateBuffering() {
+    if (this.audio.buffered.length > 0) {
+      const bufferedEnd = this.audio.buffered.end(
+        this.audio.buffered.length - 1
+      );
+      const percentage = (bufferedEnd / this.audio.duration) * 100;
+      jQuery(".buffering-bar").css("width", `${percentage}%`);
     }
+  }
 
-    jQuery('.play-pause').on('click', function () {
-        togglePlayPause();
-    });
+  getRandomIndex() {
+    let nextIndex;
+    do {
+      nextIndex = Math.floor(Math.random() * this.songs.length);
+    } while (nextIndex === this.currentSongIndex);
+    return nextIndex;
+  }
 
-    jQuery('.playlist_item').on('click', function () {
-        let index = jQuery(this).index();
-        currentSongIndex = index;
-        playSong(currentSongIndex);
-    });
+  formatTime(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${minutes < 10 ? "0" : ""}${minutes}:${
+      secs < 10 ? "0" : ""
+    }${secs}`;
+  }
+}
 
-    jQuery('.next').on('click', function () {
-        if (isShuffle && songs.length > 1) {
-            currentSongIndex = getNextSongIndex(currentSongIndex);
-        } else {
-            currentSongIndex = (currentSongIndex + 1) % songs.length;
-        }
-        playSong(currentSongIndex);
-    });
-
-    jQuery('.prev').on('click', function () {
-        if (isShuffle && songs.length > 1) {
-            currentSongIndex = getNextSongIndex(currentSongIndex);
-        } else {
-            currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
-        }
-        playSong(currentSongIndex);
-    });
-
-    jQuery('.volume-slider').on('input', function () {
-        let volumeValue = parseFloat(jQuery(this).val());
-        audio.volume = volumeValue;
-        jQuery('.volume-display').text(Math.round(volumeValue * 100));
-    });
-
-    audio.addEventListener('loadedmetadata', function () {
-        jQuery('.seekbar').attr('max', audio.duration);
-        jQuery('.duration-time').text(formatTime(audio.duration));
-    });
-
-    audio.addEventListener('timeupdate', function () {
-        if (!isDragging) {
-            jQuery('.seekbar').val(audio.currentTime);
-            jQuery('.current-time').text(formatTime(audio.currentTime));
-        }
-    });
-
-    jQuery('.seekbar').on('input', function () {
-        isDragging = true;
-        audio.currentTime = jQuery(this).val();
-        jQuery('.current-time').text(formatTime(audio.currentTime));
-    });
-
-    jQuery('.seekbar').on('change', function () {
-        isDragging = false;
-    });
-
-    jQuery('.shuffle').on('click', function () {
-        if (songs.length > 1) {
-            isShuffle = !isShuffle;
-            jQuery(this).toggleClass('active');
-            if (isShuffle) {
-                currentSongIndex = getNextSongIndex(currentSongIndex);
-                playSong(currentSongIndex);
-            }
-        } else {
-            alert('Shuffle mode requires more than one song in the playlist.');
-        }
-    });
-
-    audio.addEventListener('ended', function () {
-        if (isShuffle && songs.length > 1) {
-            currentSongIndex = getNextSongIndex(currentSongIndex);
-        } else {
-            currentSongIndex = (currentSongIndex + 1) % songs.length;
-        }
-        playSong(currentSongIndex);
-    });
-
-    audio.addEventListener('progress', function () {
-        if (audio.buffered.length > 0) {
-            let bufferedEnd = audio.buffered.end(audio.buffered.length - 1);
-            let duration = audio.duration;
-            let bufferedPercentage = (bufferedEnd / duration) * 100;
-            jQuery('.buffering-bar').css('width', bufferedPercentage + '%');
-        }
-    });
-});
+jQuery(document).ready(() => new MusicPlayer());
