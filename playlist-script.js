@@ -6,7 +6,7 @@ class MusicPlayer {
     this.isPlaying = false;
     this.isDragging = false;
     this.isShuffle = false;
-    this.repeatMode = 0; // 0: خاموش، 1: تکرار آهنگ فعلی، 2: تکرار پلی‌لیست
+    this.repeatMode = 0;
 
     this.initElements();
     this.loadSongs();
@@ -19,16 +19,18 @@ class MusicPlayer {
     this.$prevBtn = jQuery(".prev");
     this.$shuffleBtn = jQuery(".shuffle");
     this.$repeatBtn = jQuery(".repeat");
+    this.$backBtn = jQuery(".back-to-archive");
     this.$volumeSlider = jQuery(".volume-slider");
     this.$seekbar = jQuery(".seekbar");
     this.$playlistItems = jQuery(".playlist_item");
-  }
-
-  loadSongs() {
-    this.$playlistItems.each((_, item) => {
-      const src = jQuery(item).data("src");
-      if (src) this.songs.push(src);
-    });
+    this.$coverArt = jQuery(".cover-art");
+    this.$songTitle = jQuery(".song-info .song-title");
+    this.$songArtist = jQuery(".song-info .song-artist");
+    this.$songAlbum = jQuery(".song-info .song-album");
+    this.$songExcerpt = jQuery(".song-info .song-excerpt");
+    this.$songDescription = jQuery(".song-info .song-description");
+    this.$sidebarToggle = jQuery(".sidebar-toggle");
+    this.$sidebar = jQuery(".sidebar");
   }
 
   bindEvents() {
@@ -37,15 +39,34 @@ class MusicPlayer {
     this.$prevBtn.on("click", () => this.prevSong());
     this.$shuffleBtn.on("click", () => this.toggleShuffle());
     this.$repeatBtn.on("click", () => this.toggleRepeat());
+    this.$backBtn.on(
+      "click",
+      () => (window.location.href = tunetales_vars.archive_url)
+    );
     this.$volumeSlider.on("input", (e) => this.setVolume(e.target.value));
     this.$seekbar.on("input", (e) => this.seek(e.target.value));
     this.$seekbar.on("change", () => {
       this.isDragging = false;
     });
-    // فقط روی خود آیتم کلیک کنه، نه لینک دانلود
     this.$playlistItems.on("click", (e) => {
       if (!jQuery(e.target).hasClass("download-song")) {
         this.playFromList(jQuery(e.currentTarget).index());
+      }
+    });
+    this.$sidebarToggle.on("click", (e) => {
+      e.stopPropagation(); // جلوگیری از بسته شدن سایدبار وقتی روی دکمه کلیک می‌کنی
+      this.toggleSidebar();
+    });
+
+    // بستن سایدبار با کلیک روی هر جای صفحه
+    jQuery(document).on("click", (e) => {
+      if (
+        this.$sidebar.hasClass("active") &&
+        !this.$sidebar.is(e.target) &&
+        this.$sidebar.has(e.target).length === 0 &&
+        !this.$sidebarToggle.is(e.target)
+      ) {
+        this.$sidebar.removeClass("active");
       }
     });
 
@@ -55,15 +76,26 @@ class MusicPlayer {
     this.audio.addEventListener("progress", () => this.updateBuffering());
   }
 
+  toggleSidebar() {
+    this.$sidebar.toggleClass("active");
+  }
+
+  loadSongs() {
+    this.$playlistItems.each((_, item) => {
+      const src = jQuery(item).data("src");
+      if (src) this.songs.push(src);
+    });
+    if (this.songs.length > 0) this.updateUI();
+  }
+
   playSong(index) {
     if (index < 0 || index >= this.songs.length) return;
-
     this.currentSongIndex = index;
-    this.audio.src = this.songs[index]; // همیشه منبع جدید رو ست کن
-    this.audio.load(); // لود منبع جدید
+    this.audio.src = this.songs[index];
+    this.audio.load();
     this.audio
       .play()
-      .catch((error) => console.error("Error playing audio:", error)); // پخش با مدیریت خطا
+      .catch((error) => console.error("Error playing audio:", error));
     this.isPlaying = true;
     this.updateUI();
   }
@@ -79,7 +111,7 @@ class MusicPlayer {
       this.pauseSong();
     } else {
       if (!this.audio.src) {
-        this.playSong(this.currentSongIndex); // اگه منبعی نیست، آهنگ اول رو پخش کن
+        this.playSong(this.currentSongIndex);
       } else {
         this.audio
           .play()
@@ -116,13 +148,11 @@ class MusicPlayer {
     }
     this.isShuffle = !this.isShuffle;
     this.$shuffleBtn.toggleClass("active");
-    if (this.isShuffle && this.isPlaying) {
-      this.nextSong(); // وقتی شافل فعاله، یه آهنگ رندوم پخش کن
-    }
+    if (this.isShuffle && this.isPlaying) this.nextSong();
   }
 
   toggleRepeat() {
-    this.repeatMode = (this.repeatMode + 1) % 3; // 0 -> 1 -> 2 -> 0
+    this.repeatMode = (this.repeatMode + 1) % 3;
     this.$repeatBtn.removeClass("active repeat-one repeat-all");
     if (this.repeatMode === 1) {
       this.$repeatBtn.addClass("active repeat-one");
@@ -137,21 +167,20 @@ class MusicPlayer {
 
   handleSongEnd() {
     if (this.repeatMode === 1) {
-      this.audio.currentTime = 0; // تکرار آهنگ فعلی
+      this.audio.currentTime = 0;
       this.audio
         .play()
         .catch((error) => console.error("Error repeating song:", error));
     } else if (this.repeatMode === 2) {
-      this.nextSong(); // تکرار پلی‌لیست
+      this.nextSong();
     } else if (this.isShuffle) {
-      this.nextSong(); // شافل
+      this.nextSong();
     } else {
-      // حالت خاموش: اگه به آخر رسید، متوقف کن
       if (this.currentSongIndex + 1 < this.songs.length) {
         this.nextSong();
       } else {
         this.pauseSong();
-        this.currentSongIndex = 0; // برگرد به اول، ولی پخش نکن
+        this.currentSongIndex = 0;
         this.updateUI();
       }
     }
@@ -182,6 +211,53 @@ class MusicPlayer {
       .removeClass("playing")
       .eq(this.currentSongIndex)
       .addClass("playing");
+
+    const songData = this.$playlistItems.eq(this.currentSongIndex);
+    const title = songData.data("title") || "Unknown Title";
+    const artist = songData.data("artist") || "Unknown Artist";
+    const album = songData.data("album") || "Unknown Album";
+    const excerpt = songData.data("excerpt") || "";
+    const description = songData.data("description") || "";
+    this.$songTitle.text(title);
+    this.$songArtist.text(artist);
+    this.$songAlbum.text(album);
+    this.$songExcerpt.text(excerpt);
+    this.$songDescription.text(description);
+
+    const src = songData.data("src");
+    const defaultCover = tunetales_vars.plugin_url + "/default-cover.jpg";
+    jQuery.ajax({
+      url: tunetales_vars.ajaxurl,
+      method: "POST",
+      data: { action: "get_attachment_id", url: src },
+      success: (response) => {
+        const attachmentId = response.id || 0;
+        if (attachmentId) {
+          jQuery.ajax({
+            url: tunetales_vars.ajaxurl,
+            method: "POST",
+            data: {
+              action: "get_attachment_url",
+              id: attachmentId,
+              size: "medium",
+            },
+            success: (response) => {
+              this.$coverArt.attr("src", response.url || defaultCover);
+            },
+            error: (xhr, status, error) => {
+              console.error("Error fetching attachment URL:", status, error);
+              this.$coverArt.attr("src", defaultCover);
+            },
+          });
+        } else {
+          this.$coverArt.attr("src", defaultCover);
+        }
+      },
+      error: (xhr, status, error) => {
+        console.error("Error fetching attachment ID:", status, error);
+        this.$coverArt.attr("src", defaultCover);
+      },
+    });
   }
 
   updateMetadata() {

@@ -1,67 +1,57 @@
 jQuery(document).ready(function ($) {
-    $('#add_song_button').on('click', function (e) {
-        e.preventDefault();
-        var file_frame = wp.media.frames.file_frame = wp.media({
-            title: 'Select or Upload Song',
-            button: {
-                text: 'Select Song'
-            },
-            multiple: false
-        });
+  const $wrapper = $("#playlist_songs_wrapper");
+  const $addButton = $("#add_song_button");
 
-        file_frame.on('select', function () {
-            var attachment = file_frame.state().get('selection').first().toJSON();
-            var song_url = attachment.url;
-            var song_id = attachment.id;
-            var title = prompt('Enter Song Title:');
-            var artist = prompt('Enter Artist Name:');
+  $addButton.on("click", function () {
+    const uploader = wp.media({
+      title: "Add Song to Playlist",
+      library: { type: "audio" },
+      button: { text: "Add to Playlist" },
+      multiple: false,
+    });
 
-            var isDuplicate = false;
+    uploader.on("select", function () {
+      const selection = uploader.state().get("selection");
+      selection.each(function (attachment) {
+        const songUrl = attachment.attributes.url;
+        const songId = attachment.id;
+        const $songItem = $(`
+                    <div class="playlist_song_item">
+                        <input type="text" name="playlist_songs[]" value="${songUrl}" class="playlist_song_input" readonly />
+                        <button type="button" class="button remove_song_button">Remove</button>
+                    </div>
+                `);
+        $wrapper.append($songItem);
 
-            // Check if the song is already in the list
-            $('input[name="playlist_songs[]"]').each(function () {
-                if ($(this).val() === song_url) {
-                    isDuplicate = true;
-                    return false;
-                }
-            });
-
-            if (isDuplicate) {
-                alert('Error: A song with this URL has already been added.');
-                return;
+        $.ajax({
+          url: playlist_admin_ajax.ajax_url,
+          method: "POST",
+          data: {
+            action: "save_song_to_custom_directory",
+            song_id: songId,
+            post_id: $("#post_ID").val(),
+            _ajax_nonce: playlist_admin_ajax.nonce,
+          },
+          success: function (response) {
+            if (response.success) {
+              $songItem
+                .find(".playlist_song_input")
+                .val(response.data.new_song_url);
+            } else {
+              console.error("Error saving song:", response.data.message);
             }
-
-            var data = {
-                action: 'save_song_to_custom_directory',
-                song_id: song_id,
-                post_id: $('#post_ID').val(),
-                title: title,
-                artist: artist,
-                _ajax_nonce: playlist_admin_ajax.nonce
-            };
-
-            $.post(playlist_admin_ajax.ajax_url, data, function (response) {
-                if (response.success) {
-                    var new_song_url = response.data.new_song_url;
-                    $('#playlist_songs_wrapper').append(
-                        '<div class="playlist_song_item">' +
-                        '<input type="text" name="playlist_songs[]" value="' + new_song_url + '" style="width:80%;" readonly />' +
-                        '<input type="text" name="playlist_song_titles[]" value="' + title + '" placeholder="Song Title" class="playlist_song_title_input" />' +
-                        '<input type="text" name="playlist_song_artists[]" value="' + artist + '" placeholder="Artist" class="playlist_song_artist_input" />' +
-                        '<button type="button" class="remove_song_button">Remove</button>' +
-                        '</div>'
-                    );
-                } else {
-                    alert('Error: ' + response.data.message);
-                }
-            });
+          },
+          error: function (xhr, status, error) {
+            console.error("AJAX error:", status, error);
+          },
         });
-
-        file_frame.open();
+      });
     });
 
-    $(document).on('click', '.remove_song_button', function (e) {
-        e.preventDefault();
-        $(this).closest('.playlist_song_item').remove();
-    });
+    uploader.open();
+  });
+
+  $wrapper.on("click", ".remove_song_button", function () {
+    $(this).closest(".playlist_song_item").remove();
+  });
 });
