@@ -78,18 +78,13 @@
 }
 
 .player-controls input[type="range"] {
-  width: 150px;
-  margin: 0 10px;
   -webkit-appearance: none;
-  -moz-appearance: none;
   appearance: none;
   height: 8px;
   background: #ddd;
-  border-radius: var(--radius);
-  position: relative;
+  border-radius: var(--radius); /* استفاده از متغیر گردی */
   outline: none;
   transition: background 0.3s ease;
-  direction: rtl;
 }
 
 .player-controls input[type="range"]::-webkit-slider-runnable-track {
@@ -110,7 +105,6 @@
   border-radius: 50%;
   cursor: pointer;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  transition: transform 0.2s ease;
 }
 
 .player-controls input[type="range"]:hover::-webkit-slider-thumb {
@@ -208,4 +202,70 @@
   .player-controls input[type="range"] {
     width: 100%;
   }
+}
+.player-controls button.repeat {
+  background: var(--primary-color);
+  color: #ffffff;
+  border: none;
+  padding: var(--padding);
+  cursor: pointer;
+  border-radius: var(--radius);
+  font-size: 16px;
+  transition: background-color 0.3s ease, transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.player-controls button.repeat:hover,
+.player-controls button.repeat:focus {
+  background: var(--secondary-color);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+  outline: none;
+}
+
+.player-controls button.repeat.active {
+  background: var(--sub-accent); /* مرجانی برای حالت فعال */
+  color: #ffffff;
+}
+
+.player-controls .seekbar {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  background: var(--secondary-color); /* مثلاً #6b9cd6 */
+  border-radius: var(--radius); /* مثلاً 10px */
+  outline: none;
+  transition: background 0.3s ease;
+}
+
+.player-controls .seekbar::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  background: var(--accent-color); /* مثلاً #1ca7ec */
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.player-controls .seekbar::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  background: var(--accent-color);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  border: none;
+}
+
+.player-controls .seekbar::-webkit-slider-runnable-track {
+  background: var(--secondary-color);
+  border-radius: var(--radius);
+}
+
+.player-controls .seekbar::-moz-range-track {
+  background: var(--secondary-color);
+  border-radius: var(--radius);
 }

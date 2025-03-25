@@ -5,6 +5,7 @@
         <button class="play-pause" aria-label="Play or Pause"><i class="fas fa-play"></i></button>
         <button class="next" aria-label="Next Song"><i class="fas fa-backward"></i></button>
         <button class="shuffle" aria-label="Shuffle Playlist"><i class="fas fa-random"></i></button>
+        <button class="repeat" title="Repeat"><i class="fas fa-redo"></i></button>
         <div class="range-container">
             <div class="volume">
                 <input type="range" class="volume-slider" min="0" max="1" step="0.01" value="1"
