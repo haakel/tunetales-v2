@@ -29,6 +29,8 @@ class MusicPlayer {
     this.$songAlbum = jQuery(".song-info .song-album");
     this.$songExcerpt = jQuery(".song-info .song-excerpt");
     this.$songDescription = jQuery(".song-info .song-description");
+    // برای نمایش تعداد آهنگ‌ها: اضافه کردن song-position
+    this.$songPosition = jQuery(".song-info .song-position");
     this.$sidebarToggle = jQuery(".sidebar-toggle");
     this.$sidebar = jQuery(".sidebar");
   }
@@ -54,11 +56,10 @@ class MusicPlayer {
       }
     });
     this.$sidebarToggle.on("click", (e) => {
-      e.stopPropagation(); // جلوگیری از بسته شدن سایدبار وقتی روی دکمه کلیک می‌کنی
+      e.stopPropagation();
       this.toggleSidebar();
     });
 
-    // بستن سایدبار با کلیک روی هر جای صفحه
     jQuery(document).on("click", (e) => {
       if (
         this.$sidebar.hasClass("active") &&
@@ -67,6 +68,44 @@ class MusicPlayer {
         !this.$sidebarToggle.is(e.target)
       ) {
         this.$sidebar.removeClass("active");
+      }
+    });
+
+    // برای پشتیبانی از کیبورد: اضافه کردن event listener برای keydown
+    jQuery(document).on("keydown", (e) => {
+      // جلوگیری از رفتار پیش‌فرض برای کلیدهای خاص
+      if (["Space", "ArrowRight", "ArrowLeft"].includes(e.code)) {
+        e.preventDefault();
+      }
+
+      switch (e.code) {
+        case "Space": // Play/Pause
+          this.togglePlayPause();
+          this.$playPauseBtn.focus();
+          break;
+        case "ArrowRight": // Next
+          this.nextSong();
+          this.$nextBtn.focus();
+          break;
+        case "ArrowLeft": // Previous
+          this.prevSong();
+          this.$prevBtn.focus();
+          break;
+        case "KeyS": // Shuffle
+          this.toggleShuffle();
+          this.$shuffleBtn.focus();
+          break;
+        case "KeyR": // Repeat
+          this.toggleRepeat();
+          this.$repeatBtn.focus();
+          break;
+      }
+    });
+
+    // برای پشتیبانی از کیبورد: انتخاب آهنگ از لیست با Enter
+    this.$playlistItems.on("keydown", (e) => {
+      if (e.code === "Enter") {
+        this.playFromList(jQuery(e.currentTarget).index());
       }
     });
 
@@ -223,39 +262,87 @@ class MusicPlayer {
     this.$songAlbum.text(album);
     this.$songExcerpt.text(excerpt);
     this.$songDescription.text(description);
+    // برای نمایش تعداد آهنگ‌ها: آپدیت song-position
+    this.$songPosition.text(
+      `Song ${this.currentSongIndex + 1} of ${this.songs.length}`
+    );
 
     const src = songData.data("src");
     const defaultCover = tunetales_vars.plugin_url + "/default-cover.jpg";
+    if (!src) {
+      console.error("Song source is empty");
+      // برای انیمیشن تغییر آهنگ: اعمال fade
+      this.$coverArt.removeClass("fade");
+      this.$coverArt.attr("src", defaultCover);
+      this.$coverArt.addClass("fade");
+      return;
+    }
+
+    console.log("Sending AJAX request with src:", src);
+
     jQuery.ajax({
       url: tunetales_vars.ajaxurl,
       method: "POST",
-      data: { action: "get_attachment_id", url: src },
+      data: {
+        action: "get_attachment_id",
+        url: src,
+        nonce: tunetales_vars.nonce,
+      },
       success: (response) => {
-        const attachmentId = response.id || 0;
-        if (attachmentId) {
-          jQuery.ajax({
-            url: tunetales_vars.ajaxurl,
-            method: "POST",
-            data: {
-              action: "get_attachment_url",
-              id: attachmentId,
-              size: "medium",
-            },
-            success: (response) => {
-              this.$coverArt.attr("src", response.url || defaultCover);
-            },
-            error: (xhr, status, error) => {
-              console.error("Error fetching attachment URL:", status, error);
-              this.$coverArt.attr("src", defaultCover);
-            },
-          });
+        console.log("AJAX response for get_attachment_id:", response);
+        if (response.success) {
+          const attachmentId = response.data.id || 0;
+          if (attachmentId) {
+            jQuery.ajax({
+              url: tunetales_vars.ajaxurl,
+              method: "POST",
+              data: {
+                action: "get_attachment_url",
+                id: attachmentId,
+                size: "medium",
+                nonce: tunetales_vars.nonce,
+              },
+              success: (response) => {
+                console.log("AJAX response for get_attachment_url:", response);
+                if (response.success) {
+                  // برای انیمیشن تغییر آهنگ: اعمال fade
+                  this.$coverArt.removeClass("fade");
+                  this.$coverArt.attr("src", response.data.url || defaultCover);
+                  this.$coverArt.addClass("fade");
+                } else {
+                  console.error(
+                    "Error fetching attachment URL:",
+                    response.data.message
+                  );
+                  this.$coverArt.removeClass("fade");
+                  this.$coverArt.attr("src", defaultCover);
+                  this.$coverArt.addClass("fade");
+                }
+              },
+              error: (xhr, status, error) => {
+                console.error("Error fetching attachment URL:", status, error);
+                this.$coverArt.removeClass("fade");
+                this.$coverArt.attr("src", defaultCover);
+                this.$coverArt.addClass("fade");
+              },
+            });
+          } else {
+            this.$coverArt.removeClass("fade");
+            this.$coverArt.attr("src", defaultCover);
+            this.$coverArt.addClass("fade");
+          }
         } else {
+          console.error("Error fetching attachment ID:", response.data.message);
+          this.$coverArt.removeClass("fade");
           this.$coverArt.attr("src", defaultCover);
+          this.$coverArt.addClass("fade");
         }
       },
       error: (xhr, status, error) => {
         console.error("Error fetching attachment ID:", status, error);
+        this.$coverArt.removeClass("fade");
         this.$coverArt.attr("src", defaultCover);
+        this.$coverArt.addClass("fade");
       },
     });
   }

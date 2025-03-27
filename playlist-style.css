@@ -95,6 +95,7 @@ body.tunetales-player {
   backdrop-filter: blur(10px);
   padding: var(--padding);
   overflow-y: auto;
+  overflow-x: hidden;
   border-right: 1px solid rgba(255, 255, 255, 0.1);
   transition: transform 0.3s ease;
 }
@@ -106,12 +107,14 @@ body.tunetales-player {
   align-items: center;
   justify-content: center;
   padding: var(--padding);
-  overflow-y: auto;
+  overflow: hidden;
 }
 
 .now-playing {
   text-align: center;
   margin-bottom: 30px;
+  max-height: 60vh;
+  overflow: hidden;
 }
 
 .cover-art {
@@ -127,8 +130,23 @@ body.tunetales-player {
   transform: scale(1.02);
 }
 
+.cover-art.fade {
+  animation: fade 0.5s ease-in-out;
+}
+
+@keyframes fade {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
 .song-info {
   margin-top: 20px;
+  max-height: 25vh;
+  overflow: hidden;
 }
 
 .song-info .song-title {
@@ -136,12 +154,20 @@ body.tunetales-player {
   font-weight: bold;
   margin-bottom: 5px;
   display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
 }
 
 .song-info .song-artist {
   font-size: 20px;
   opacity: 0.8;
   display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
 }
 
 .song-info .song-album {
@@ -149,19 +175,49 @@ body.tunetales-player {
   opacity: 0.7;
   margin-top: 5px;
   display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
 }
 
 .song-info .song-excerpt {
   font-size: 16px;
-  margin-top: 10px;
+  margin-top: 5px;
   opacity: 0.9;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  display: box;
+  line-clamp: 1;
+  box-orient: vertical;
+  line-height: 1.2;
 }
 
 .song-info .song-description {
   font-size: 14px;
-  margin-top: 10px;
+  margin-top: 5px;
   opacity: 0.8;
-  line-height: 1.5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  display: box;
+  line-clamp: 1;
+  box-orient: vertical;
+  line-height: 1.2;
+}
+
+.song-info .song-position {
+  font-size: 16px;
+  margin-top: 5px;
+  opacity: 0.9;
+  display: block;
+  color: var(--accent-color);
+  line-height: 1.2;
 }
 
 .player-controls {
@@ -213,44 +269,37 @@ body.tunetales-player {
   background: var(--sub-accent);
 }
 
-/* استایل برای دکمه Repeat در حالت‌های مختلف */
 .repeat {
   position: relative;
   transition: all 0.3s ease;
 }
 
-/* حالت خاموش (Repeat Off) */
 .repeat:not(.repeat-one):not(.repeat-all) {
   background: var(--primary-color);
   color: #ffffff;
-  opacity: 0.6; /* کمی کم‌رنگ‌تر برای نشان دادن حالت خاموش */
+  opacity: 0.6;
 }
 
-/* حالت Repeat One */
 .repeat.repeat-one {
-  background: #ff6f61; /* رنگ نارنجی */
+  background: #ff6f61;
   color: #ffffff;
   opacity: 1;
 }
 
-/* تغییر آیکون برای Repeat One */
 .repeat.repeat-one i::before {
-  content: "\f021"; /* آیکون fa-redo */
+  content: "\f021";
 }
 
-/* حالت Repeat All */
 .repeat.repeat-all {
-  background: #00ddeb; /* رنگ فیروزه‌ای */
+  background: #00ddeb;
   color: #ffffff;
   opacity: 1;
 }
 
-/* تغییر آیکون برای Repeat All */
 .repeat.repeat-all i::before {
-  content: "\f01e"; /* آیکون fa-redo-alt */
+  content: "\f01e";
 }
 
-/* افکت hover برای دکمه Repeat */
 .repeat:hover {
   transform: scale(1.1);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
@@ -304,6 +353,14 @@ input[type="range"]:hover {
   align-items: center;
   cursor: pointer;
   transition: background 0.3s ease, transform 0.2s ease;
+  gap: 10px;
+}
+
+.playlist_item .song-title {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .playlist_item:hover {
@@ -323,6 +380,7 @@ input[type="range"]:hover {
   color: var(--accent-color);
   text-decoration: none;
   transition: color 0.3s ease;
+  flex-shrink: 0;
 }
 
 .download-song:hover {
@@ -331,26 +389,29 @@ input[type="range"]:hover {
 
 .playlist-archive {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 250px));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 200px));
+  gap: 15px;
   padding: var(--padding);
   overflow-y: auto;
+  overflow-x: hidden;
   flex: 1;
-  max-width: 1200px;
+  width: 100%;
+  max-width: 100%;
   margin: 0 auto;
+  box-sizing: border-box;
   justify-content: center;
 }
 
 .playlist-card {
   background: var(--item-bg);
   border-radius: var(--radius);
-  padding: 12px;
+  padding: 10px;
   text-align: center;
   color: var(--text-color);
   text-decoration: none;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   display: block;
-  height: 260px;
+  height: 220px;
   overflow: hidden;
 }
 
@@ -366,21 +427,21 @@ input[type="range"]:hover {
 
 .playlist-cover {
   width: 100%;
-  height: 160px;
+  height: 140px;
   object-fit: cover;
   border-radius: var(--radius);
 }
 
 .playlist-title {
-  font-size: 20px;
-  margin: 10px 0 5px;
+  font-size: 18px;
+  margin: 8px 0 4px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .song-count {
-  font-size: 14px;
+  font-size: 12px;
   opacity: 0.8;
 }
 
@@ -393,6 +454,8 @@ input[type="range"]:hover {
     width: 250px;
     transform: translateX(-100%);
     z-index: 20;
+    overflow-y: auto;
+    overflow-x: hidden;
   }
 
   .sidebar.active {
@@ -405,6 +468,12 @@ input[type="range"]:hover {
 
   .main-content {
     padding: 10px;
+    overflow: hidden;
+  }
+
+  .now-playing {
+    max-height: 50vh;
+    overflow: hidden;
   }
 
   .cover-art {
@@ -412,24 +481,47 @@ input[type="range"]:hover {
     height: 250px;
   }
 
+  .song-info {
+    max-height: 25vh;
+    overflow: hidden;
+  }
+
   .song-info .song-title {
     font-size: 20px;
+    line-height: 1.2;
   }
 
   .song-info .song-artist {
     font-size: 16px;
+    line-height: 1.2;
   }
 
   .song-info .song-album {
-    font-size: 14px;
+    /* حذف آلبوم توی موبایل */
+    display: none;
   }
 
   .song-info .song-excerpt {
     font-size: 14px;
+    margin-top: 5px;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    display: box;
+    line-clamp: 1;
+    box-orient: vertical;
+    line-height: 1.2;
   }
 
   .song-info .song-description {
-    font-size: 12px;
+    /* حذف توضیحات توی موبایل */
+    display: none;
+  }
+
+  .song-info .song-position {
+    font-size: 14px;
+    margin-top: 5px;
+    line-height: 1.2;
   }
 
   .player-controls {
@@ -464,20 +556,27 @@ input[type="range"]:hover {
   }
 
   .playlist-archive {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    max-width: 100%;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 150px));
+    gap: 10px;
     padding: 10px;
+    overflow-y: auto;
+    overflow-x: hidden;
   }
 
   .playlist-card {
-    height: 240px;
+    height: 200px;
   }
 
   .playlist-cover {
-    height: 140px;
+    height: 120px;
   }
 
   .playlist-title {
-    font-size: 18px;
+    font-size: 16px;
+    margin: 6px 0 3px;
+  }
+
+  .song-count {
+    font-size: 10px;
   }
 }

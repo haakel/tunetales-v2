@@ -4,12 +4,13 @@ $is_archive = is_post_type_archive('playlist');
 ?>
 <div class="webapp-player" id="tunetales-app">
     <header class="app-header">
-        <button class="sidebar-toggle" aria-label="Toggle Playlist">
+        <!-- برای پشتیبانی از کیبورد: اضافه کردن tabindex به دکمه‌های هدر -->
+        <button class="sidebar-toggle" aria-label="Toggle Playlist" tabindex="0">
             <i class="fas fa-bars"></i>
         </button>
         <h1 class="app-title">TuneTales</h1>
         <?php if (is_singular('playlist')) : ?>
-        <button class="back-to-archive" aria-label="Back to Playlist Archive">
+        <button class="back-to-archive" aria-label="Back to Playlist Archive" tabindex="0">
             <i class="fas fa-arrow-left"></i> Archive
         </button>
         <?php endif; ?>
@@ -46,7 +47,7 @@ $is_archive = is_post_type_archive('playlist');
                 <?php
                     $current_song = $songs[0];
                     $attachment_id = attachment_url_to_postid($current_song['url']);
-                    $thumbnail_id = get_post_thumbnail_id($attachment_id); // گرفتن تصویر شاخص آهنگ
+                    $thumbnail_id = get_post_thumbnail_id($attachment_id);
                     $thumbnail = $thumbnail_id ? wp_get_attachment_image_url($thumbnail_id, 'medium') : plugin_dir_url(__FILE__) . 'default-cover.jpg';
                     $attachment = get_post($attachment_id);
                     $metadata = wp_get_attachment_metadata($attachment_id);
@@ -62,6 +63,8 @@ $is_archive = is_post_type_archive('playlist');
                     <p class="song-excerpt"><?php echo esc_html($attachment ? $attachment->post_excerpt : ''); ?></p>
                     <p class="song-description"><?php echo esc_html($attachment ? $attachment->post_content : ''); ?>
                     </p>
+                    <!-- برای نمایش تعداد آهنگ‌ها: اضافه کردن song-position -->
+                    <span class="song-position" aria-label="Song Position"></span>
                 </div>
             </div>
             <div class="player-controls">
