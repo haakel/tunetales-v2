@@ -21,10 +21,111 @@ class Music_Playlist_Admin {
     public function __construct() {
         $this->register_hooks();
         add_action('init', [$this, 'create_playlist_post_type']);
-        add_action('init', [$this, 'enable_thumbnail_for_attachments']); // اضافه شده
+        add_action('init', [$this, 'enable_thumbnail_for_attachments']);
         add_action('wp_ajax_get_attachment_id', [$this, 'ajax_get_attachment_id']);
         add_action('wp_ajax_get_attachment_url', [$this, 'ajax_get_attachment_url']);
         add_filter('template_include', [$this, 'load_custom_template']);
+        register_activation_hook(__DIR__ . '/music_playlist_admin.php', [$this, 'create_all_songs_post']);
+        add_action('wp_trash_post', [$this, 'prevent_delete_all_songs']);
+        add_action('before_delete_post', [$this, 'prevent_delete_all_songs']);
+        add_action('save_post', [$this, 'add_song_to_all_songs'], 20, 2);
+    }
+
+    function create_all_songs_post() {
+        //error_log('create_all_songs_post triggered');
+        $all_songs_id = get_option('all_songs_post_id');
+    
+        if ($all_songs_id) {
+            $post = get_post($all_songs_id);
+            if (!$post || $post->post_status !== 'publish' || $post->post_type !== 'playlist') {
+                delete_option('all_songs_post_id');
+                $all_songs_id = false;
+                //error_log('Invalid all_songs_post_id detected, resetting');
+            }
+        }
+    
+        if (!$all_songs_id) {
+            $post_id = wp_insert_post([
+                'post_title'    => 'همه آهنگ‌ها',
+                'post_name'     => 'all-songs',
+                'post_type'     => 'playlist',
+                'post_status'   => 'publish',
+                'post_author'   => 1,
+            ]);
+    
+            if ($post_id && !is_wp_error($post_id)) {
+                update_post_meta($post_id, '_is_all_songs', 'yes');
+                update_option('all_songs_post_id', $post_id);
+                // مطمئن می‌شیم پست منتشر شده
+                wp_update_post(['ID' => $post_id, 'post_status' => 'publish']);
+               // error_log('All songs post created with ID: ' . $post_id);
+            } else {
+                //error_log('Failed to create all songs post');
+            }
+        } else {
+           // error_log('All songs post already exists with ID: ' . $all_songs_id);
+        }
+    }
+
+
+    function prevent_delete_all_songs($post_id) {
+        $all_songs_id = get_option('all_songs_post_id');
+        if ($post_id == $all_songs_id) {
+            wp_die('نمی‌توانید پست "همه آهنگ‌ها" را حذف کنید!');
+        }
+    }
+
+    function add_song_to_all_songs($post_id, $post) {
+        if ($post->post_type !== 'playlist') {
+            return;
+        }
+    
+        $all_songs_id = get_option('all_songs_post_id');
+        if (!$all_songs_id || $post_id == $all_songs_id) {
+           // error_log('add_song_to_all_songs: No all_songs_id or editing all songs post');
+            return;
+        }
+    
+        $new_songs = get_post_meta($post_id, self::META_KEY_SONGS, true);
+        if (!is_array($new_songs)) {
+            $new_songs = [];
+            //error_log('No songs found in post ID: ' . $post_id);
+        }
+    
+        $all_songs = get_post_meta($all_songs_id, self::META_KEY_SONGS, true);
+        if (!is_array($all_songs)) {
+            $all_songs = [];
+           // error_log('Initialized empty all_songs array for ID: ' . $all_songs_id);
+        }
+    
+        $updated = false;
+        foreach ($new_songs as $new_song) {
+            $song_url = isset($new_song['url']) ? $new_song['url'] : '';
+            if (empty($song_url)) {
+               // error_log('Empty song URL found in post ID: ' . $post_id);
+                continue;
+            }
+    
+            $is_duplicate = false;
+            foreach ($all_songs as $existing_song) {
+                if (isset($existing_song['url']) && $existing_song['url'] === $song_url) {
+                    $is_duplicate = true;
+                    break;
+                }
+            }
+            if (!$is_duplicate) {
+                $all_songs[] = ['url' => $song_url];
+                $updated = true;
+                //error_log('Added song to all_songs: ' . $song_url);
+            }
+        }
+    
+        if ($updated) {
+            update_post_meta($all_songs_id, self::META_KEY_SONGS, $all_songs);
+            //error_log('Songs updated for all_songs post ID: ' . $all_songs_id);
+        } else {
+            //error_log('No new songs to add to all_songs for post ID: ' . $post_id);
+        }
     }
 
     public function create_playlist_post_type() {
