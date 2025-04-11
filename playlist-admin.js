@@ -50,8 +50,50 @@ jQuery(document).ready(function ($) {
 
     uploader.open();
   });
+  $("#add_multiple_songs_button").on("click", function (e) {
+    e.preventDefault();
+    var frame = wp.media({
+      title: "Select Songs",
+      button: { text: "Add to Playlist" },
+      multiple: true,
+      library: { type: "audio" },
+    });
 
-  $wrapper.on("click", ".remove_song_button", function () {
+    frame.on("select", function () {
+      var attachments = frame.state().get("selection").toJSON();
+      var wrapper = $("#playlist_songs_wrapper");
+      var playlists = playlist_admin_ajax.playlists || [];
+      attachments.forEach(function (attachment, index) {
+        var url = attachment.url;
+        var selectOptions = '<option value="">Select Playlists</option>';
+        playlists.forEach(function (playlist) {
+          selectOptions +=
+            '<option value="' +
+            playlist.id +
+            '">' +
+            playlist.title +
+            "</option>";
+        });
+        wrapper.append(
+          '<div class="playlist_song_item">' +
+            '<input type="text" name="playlist_songs[url][]" value="' +
+            url +
+            '" class="playlist_song_input" readonly />' +
+            '<select name="playlist_songs[playlists][' +
+            index +
+            '][]" class="playlist_select" multiple>' +
+            selectOptions +
+            "</select>" +
+            '<button type="button" class="button remove_song_button">Remove</button>' +
+            "</div>"
+        );
+      });
+    });
+
+    frame.open();
+  });
+
+  $(document).on("click", ".remove_song_button", function () {
     $(this).closest(".playlist_song_item").remove();
   });
 });

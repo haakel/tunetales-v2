@@ -181,18 +181,33 @@ class Music_Playlist_Admin {
     public function render_meta_box($post) {
         wp_nonce_field(self::NONCE_ACTION, 'playlist_songs_nonce');
         $songs = get_post_meta($post->ID, self::META_KEY_SONGS, true) ?: [];
+        $playlists = get_posts([
+            'post_type' => self::POST_TYPE,
+            'numberposts' => -1,
+            'post_status' => 'publish',
+        ]);
         ?>
 <div id="playlist_songs_wrapper">
-    <?php foreach ($songs as $song) : if (is_array($song)) : ?>
+    <?php foreach ($songs as $index => $song) : if (is_array($song)) : ?>
     <div class="playlist_song_item">
-        <input type="text" name="playlist_songs[]" value="<?php echo esc_attr($song['url']); ?>"
+        <input type="text" name="playlist_songs[url][]" value="<?php echo esc_attr($song['url']); ?>"
             class="playlist_song_input" readonly />
+        <select name="playlist_songs[playlists][<?php echo $index; ?>][]" class="playlist_select" multiple>
+            <option value=""><?php _e('Select Playlists', 'music-playlist'); ?></option>
+            <?php foreach ($playlists as $playlist) : ?>
+            <option value="<?php echo $playlist->ID; ?>"
+                <?php echo in_array($playlist->ID, $song['playlists'] ?? []) ? 'selected' : ''; ?>>
+                <?php echo esc_html($playlist->post_title); ?>
+            </option>
+            <?php endforeach; ?>
+        </select>
         <button type="button" class="button remove_song_button"><?php _e('Remove', 'music-playlist'); ?></button>
     </div>
     <?php endif; endforeach; ?>
 </div>
-<p><button type="button" id="add_song_button"
-        class="button button-primary"><?php _e('Add Song', 'music-playlist'); ?></button></p>
+<p><button type="button" id="add_multiple_songs_button" class="button button-primary">
+        <?php _e('Add Multiple Songs', 'music-playlist'); ?>
+    </button></p>
 <?php
     }
 
@@ -200,6 +215,28 @@ class Music_Playlist_Admin {
         if (!$this->can_save($post_id)) return;
         $songs = $this->sanitize_songs_data();
         update_post_meta($post_id, self::META_KEY_SONGS, $songs);
+    
+        // اضافه کردن به پلی‌لیست‌های انتخاب‌شده
+        foreach ($songs as $song) {
+            if (!empty($song['playlists'])) {
+                foreach ($song['playlists'] as $playlist_id) {
+                    if ($playlist_id != $post_id) { // جلوگیری از اضافه کردن به خودش
+                        $playlist_songs = get_post_meta($playlist_id, self::META_KEY_SONGS, true) ?: [];
+                        $song_exists = false;
+                        foreach ($playlist_songs as $existing_song) {
+                            if ($existing_song['url'] === $song['url']) {
+                                $song_exists = true;
+                                break;
+                            }
+                        }
+                        if (!$song_exists) {
+                            $playlist_songs[] = $song;
+                            update_post_meta($playlist_id, self::META_KEY_SONGS, $playlist_songs);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private function can_save($post_id) {
@@ -211,10 +248,14 @@ class Music_Playlist_Admin {
 
     private function sanitize_songs_data() {
         $songs = [];
-        if (isset($_POST['playlist_songs'])) {
-            foreach ($_POST['playlist_songs'] as $index => $url) {
+        if (isset($_POST['playlist_songs']['url'])) {
+            foreach ($_POST['playlist_songs']['url'] as $index => $url) {
+                $playlist_ids = isset($_POST['playlist_songs']['playlists'][$index]) 
+                    ? array_map('intval', $_POST['playlist_songs']['playlists'][$index]) 
+                    : [];
                 $songs[] = [
                     'url' => esc_url_raw($url),
+                    'playlists' => $playlist_ids, // ذخیره آرایه‌ای از IDها
                 ];
             }
         }
@@ -224,10 +265,18 @@ class Music_Playlist_Admin {
     public function enqueue_admin_scripts($hook) {
         if (!in_array($hook, ['post.php', 'post-new.php'])) return;
         wp_enqueue_media();
-        wp_enqueue_script('playlist-admin-js', plugin_dir_url(__FILE__) . 'playlist-admin.js', ['jquery'], '1.0', true);
+        wp_enqueue_script('playlist-admin-js', plugin_dir_url(__FILE__) . 'playlist-admin.js', ['jquery'], '1.2', true);
+        $playlists = get_posts([
+            'post_type' => self::POST_TYPE,
+            'numberposts' => -1,
+            'post_status' => 'publish',
+        ]);
         wp_localize_script('playlist-admin-js', 'playlist_admin_ajax', [
             'ajax_url' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('playlist_admin_ajax_nonce')
+            'nonce' => wp_create_nonce('playlist_admin_ajax_nonce'),
+            'playlists' => array_map(function($p) {
+                return ['id' => $p->ID, 'title' => $p->post_title];
+            }, $playlists),
         ]);
     }
 
