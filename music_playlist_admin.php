@@ -18,117 +18,86 @@ class Music_Playlist_Admin {
         return self::$instance;
     }
 
-public function __construct() {
-    $this->register_hooks();
-    add_action('init', [$this, 'create_playlist_post_type']);
-    add_action('init', [$this, 'enable_thumbnail_for_attachments']);
-    add_action('wp_ajax_get_attachment_id', [$this, 'ajax_get_attachment_id']);
-    add_action('wp_ajax_get_attachment_url', [$this, 'ajax_get_attachment_url']);
-    add_action('wp_ajax_create_new_playlist', [$this, 'ajax_create_new_playlist']); // جدید
-    add_filter('template_include', [$this, 'load_custom_template']);
-    register_activation_hook(__FILE__, [$this, 'create_all_songs_post']);
-    add_action('wp_trash_post', [$this, 'prevent_delete_all_songs']);
-    add_action('before_delete_post', [$this, 'prevent_delete_all_songs']);
-    add_action('save_post', [$this, 'add_song_to_all_songs'], 20, 2);
-}
-
-public function ajax_create_new_playlist() {
-    check_ajax_referer('playlist_admin_ajax_nonce', 'nonce');
-    $playlist_name = sanitize_text_field($_POST['playlist_name'] ?? '');
-    if (empty($playlist_name)) {
-        wp_send_json_error(['message' => 'Playlist name is required']);
+    public function __construct() {
+        $this->register_hooks();
     }
 
-    $post_id = wp_insert_post([
-        'post_title'    => $playlist_name,
-        'post_type'     => self::POST_TYPE,
-        'post_status'   => 'publish',
-        'post_author'   => get_current_user_id(),
-    ]);
+    private function register_hooks() {
+        // هوک‌های مربوط به پست‌تایپ و فعال‌سازی
+        add_action('init', [$this, 'create_playlist_post_type']);
+        add_action('init', [$this, 'enable_thumbnail_for_attachments']);
+        add_action('admin_init', [$this, 'create_all_songs_post']);
+        register_activation_hook(__FILE__, [$this, 'create_all_songs_post']);
 
-    if ($post_id && !is_wp_error($post_id)) {
-        update_post_meta($post_id, '_is_all_songs_playlist', false);
-        wp_send_json_success([
-            'id' => $post_id,
-            'title' => $playlist_name,
-        ]);
-    } else {
-        wp_send_json_error(['message' => 'Failed to create playlist']);
+        // هوک‌های متاباکس و ذخیره
+        add_action('add_meta_boxes', [$this, 'playlist_meta_box']);
+        add_action('save_post_' . self::POST_TYPE, [$this, 'save_playlist_songs']);
+
+        // هوک‌های AJAX
+        add_action('wp_ajax_get_attachment_id', [$this, 'ajax_get_attachment_id']);
+        add_action('wp_ajax_get_attachment_url', [$this, 'ajax_get_attachment_url']);
+        add_action('wp_ajax_create_new_playlist', [$this, 'ajax_create_new_playlist']);
+        add_action('wp_ajax_save_song_to_custom_directory', [$this, 'save_song_to_custom_directory']);
+
+        // هوک‌های استایل و اسکریپت
+        add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_scripts']);
+        add_action('wp_enqueue_scripts', [$this, 'enqueue_custom_post_type_styles']);
+
+        // هوک‌های قالب
+        add_filter('template_include', [$this, 'load_custom_template']);
+
+        // جلوگیری از حذف "All Songs"
+        add_action('wp_trash_post', [$this, 'prevent_all_songs_deletion']);
+        add_action('before_delete_post', [$this, 'prevent_all_songs_deletion']);
     }
-}
 
-public function create_all_songs_post() {
-    $post_id = get_page_by_path('all-songs', OBJECT, self::POST_TYPE);
-    if (!$post_id) {
+    public function ajax_create_new_playlist() {
+        check_ajax_referer('playlist_admin_ajax_nonce', 'nonce');
+        $playlist_name = sanitize_text_field($_POST['playlist_name'] ?? '');
+        if (empty($playlist_name)) {
+            wp_send_json_error(['message' => 'Playlist name is required']);
+        }
+
         $post_id = wp_insert_post([
-            'post_title' => __('All Songs', 'music-playlist'),
-            'post_name' => 'all-songs',
-            'post_type' => self::POST_TYPE,
-            'post_status' => 'publish',
+            'post_title'    => $playlist_name,
+            'post_type'     => self::POST_TYPE,
+            'post_status'   => 'publish',
+            'post_author'   => get_current_user_id(),
         ]);
-        // اضافه کردن متا برای شناسایی
-        update_post_meta($post_id, '_is_all_songs_playlist', true);
-    }
-}
 
-
-    function prevent_delete_all_songs($post_id) {
-        $all_songs_id = get_option('all_songs_post_id');
-        if ($post_id == $all_songs_id) {
-            wp_die('نمی‌توانید پست "همه آهنگ‌ها" را حذف کنید!');
-        }
-    }
-
-    function add_song_to_all_songs($post_id, $post) {
-        if ($post->post_type !== 'playlist') {
-            return;
-        }
-    
-        $all_songs_id = get_option('all_songs_post_id');
-        if (!$all_songs_id || $post_id == $all_songs_id) {
-           // error_log('add_song_to_all_songs: No all_songs_id or editing all songs post');
-            return;
-        }
-    
-        $new_songs = get_post_meta($post_id, self::META_KEY_SONGS, true);
-        if (!is_array($new_songs)) {
-            $new_songs = [];
-            //error_log('No songs found in post ID: ' . $post_id);
-        }
-    
-        $all_songs = get_post_meta($all_songs_id, self::META_KEY_SONGS, true);
-        if (!is_array($all_songs)) {
-            $all_songs = [];
-           // error_log('Initialized empty all_songs array for ID: ' . $all_songs_id);
-        }
-    
-        $updated = false;
-        foreach ($new_songs as $new_song) {
-            $song_url = isset($new_song['url']) ? $new_song['url'] : '';
-            if (empty($song_url)) {
-               // error_log('Empty song URL found in post ID: ' . $post_id);
-                continue;
-            }
-    
-            $is_duplicate = false;
-            foreach ($all_songs as $existing_song) {
-                if (isset($existing_song['url']) && $existing_song['url'] === $song_url) {
-                    $is_duplicate = true;
-                    break;
-                }
-            }
-            if (!$is_duplicate) {
-                $all_songs[] = ['url' => $song_url];
-                $updated = true;
-                //error_log('Added song to all_songs: ' . $song_url);
-            }
-        }
-    
-        if ($updated) {
-            update_post_meta($all_songs_id, self::META_KEY_SONGS, $all_songs);
-            //error_log('Songs updated for all_songs post ID: ' . $all_songs_id);
+        if ($post_id && !is_wp_error($post_id)) {
+            update_post_meta($post_id, '_is_all_songs_playlist', false);
+            wp_send_json_success([
+                'id' => $post_id,
+                'title' => $playlist_name,
+            ]);
         } else {
-            //error_log('No new songs to add to all_songs for post ID: ' . $post_id);
+            wp_send_json_error(['message' => 'Failed to create playlist']);
+        }
+    }
+
+    public function create_all_songs_post() {
+        $post_id = get_page_by_path('all-songs', OBJECT, self::POST_TYPE);
+        if (!$post_id) {
+            $post_id = wp_insert_post([
+                'post_title' => __('All Songs', 'music-playlist'),
+                'post_name' => 'all-songs',
+                'post_type' => self::POST_TYPE,
+                'post_status' => 'publish',
+            ]);
+            update_post_meta($post_id, '_is_all_songs_playlist', true);
+        }
+    }
+
+    public function prevent_all_songs_deletion($post_id) {
+        $post = get_post($post_id);
+        if ($post->post_type !== self::POST_TYPE) {
+            return;
+        }
+
+        $all_songs_id = $this->get_all_songs_post_id();
+        if ($post_id == $all_songs_id) {
+            wp_die(__('The "All Songs" playlist cannot be deleted.', 'music-playlist'));
         }
     }
 
@@ -143,7 +112,7 @@ public function create_all_songs_post() {
     }
 
     public function enable_thumbnail_for_attachments() {
-        add_post_type_support('attachment', 'thumbnail'); // فعال کردن تصویر شاخص برای attachment
+        add_post_type_support('attachment', 'thumbnail');
     }
 
     public function load_custom_template($template) {
@@ -155,14 +124,6 @@ public function create_all_songs_post() {
         return $template;
     }
 
-    private function register_hooks() {
-        add_action('add_meta_boxes', [$this, 'playlist_meta_box']);
-        add_action('save_post', [$this, 'save_playlist_songs']);
-        add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_scripts']);
-        add_action('wp_ajax_save_song_to_custom_directory', [$this, 'save_song_to_custom_directory']);
-        add_action('wp_enqueue_scripts', [$this, 'enqueue_custom_post_type_styles']);
-    }
-
     public function ajax_get_attachment_id() {
         $url = $_POST['url'] ?? '';
         $id = attachment_url_to_postid($url);
@@ -172,7 +133,6 @@ public function create_all_songs_post() {
     public function ajax_get_attachment_url() {
         $id = intval($_POST['id'] ?? 0);
         $size = $_POST['size'] ?? 'medium';
-        // به‌جای گرفتن تصویر خود فایل، تصویر شاخص رو می‌گیریم
         $thumbnail_id = get_post_thumbnail_id($id);
         $url = $thumbnail_id ? wp_get_attachment_image_url($thumbnail_id, $size) : plugin_dir_url(__FILE__) . 'default-cover.jpg';
         wp_send_json(['url' => $url]);
@@ -190,7 +150,7 @@ public function create_all_songs_post() {
             'post_type' => self::POST_TYPE,
             'numberposts' => -1,
             'post_status' => 'publish',
-            'post__not_in' => [$all_songs_id], // حذف "همه آهنگ‌ها"
+            'post__not_in' => [$all_songs_id],
         ]);
         ?>
 <div id="playlist_songs_wrapper">
@@ -249,7 +209,7 @@ public function create_all_songs_post() {
         if (!$this->can_save($post_id)) return;
         $songs = $this->sanitize_songs_data();
         $all_songs_id = $this->get_all_songs_post_id();
-    
+
         // مطمئن می‌شیم پلی‌لیست فعلی توی آرایه playlists هر آهنگ باشه
         foreach ($songs as &$song) {
             if (!isset($song['playlists']) || !is_array($song['playlists'])) {
@@ -258,15 +218,34 @@ public function create_all_songs_post() {
             if (!in_array($post_id, $song['playlists'])) {
                 $song['playlists'][] = $post_id;
             }
-            // حذف "همه آهنگ‌ها" از آرایه playlists
+            // حذف "همه آهنگ‌ها" از آرایه playlists (چون توی UI نباید نمایش داده بشه)
             $song['playlists'] = array_filter($song['playlists'], function($id) use ($all_songs_id) {
                 return $id != $all_songs_id;
             });
         }
         unset($song);
-    
+
+        // ذخیره آهنگ‌ها توی پلی‌لیست فعلی
         update_post_meta($post_id, self::META_KEY_SONGS, $songs);
-    
+
+        // اضافه کردن آهنگ‌ها به پلی‌لیست "All Songs"
+        if ($all_songs_id) {
+            $all_songs = get_post_meta($all_songs_id, self::META_KEY_SONGS, true) ?: [];
+            foreach ($songs as $song) {
+                $song_exists = false;
+                foreach ($all_songs as $existing_song) {
+                    if ($existing_song['url'] === $song['url']) {
+                        $song_exists = true;
+                        break;
+                    }
+                }
+                if (!$song_exists) {
+                    $all_songs[] = $song;
+                }
+            }
+            update_post_meta($all_songs_id, self::META_KEY_SONGS, $all_songs);
+        }
+
         // اضافه کردن به پلی‌لیست‌های انتخاب‌شده
         foreach ($songs as $song) {
             if (!empty($song['playlists'])) {
@@ -306,7 +285,7 @@ public function create_all_songs_post() {
                     : [];
                 $songs[] = [
                     'url' => esc_url_raw($url),
-                    'playlists' => $playlist_ids, // ذخیره آرایه‌ای از IDها
+                    'playlists' => $playlist_ids,
                 ];
             }
         }
@@ -324,7 +303,7 @@ public function create_all_songs_post() {
             'post_type' => self::POST_TYPE,
             'numberposts' => -1,
             'post_status' => 'publish',
-            'post__not_in' => [$all_songs_id], // حذف "همه آهنگ‌ها"
+            'post__not_in' => [$all_songs_id],
         ]);
         wp_localize_script('playlist-admin-js', 'playlist_admin_ajax', [
             'ajax_url' => admin_url('admin-ajax.php'),
