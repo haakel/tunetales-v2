@@ -63,28 +63,49 @@ jQuery(document).ready(function ($) {
       var attachments = frame.state().get("selection").toJSON();
       var wrapper = $("#playlist_songs_wrapper");
       var playlists = playlist_admin_ajax.playlists || [];
+      var currentPlaylistId = playlist_admin_ajax.current_playlist_id;
       attachments.forEach(function (attachment, index) {
         var url = attachment.url;
-        var selectOptions = '<option value="">Select Playlists</option>';
+        var checkboxOptions = "";
         playlists.forEach(function (playlist) {
-          selectOptions +=
-            '<option value="' +
+          var checked = playlist.id == currentPlaylistId ? "checked" : "";
+          checkboxOptions +=
+            '<label class="checkbox-item">' +
+            '<input type="checkbox" name="playlist_songs[playlists][' +
+            index +
+            '][]" ' +
+            'value="' +
             playlist.id +
-            '">' +
+            '" ' +
+            checked +
+            " />" +
             playlist.title +
-            "</option>";
+            "</label>";
         });
         wrapper.append(
           '<div class="playlist_song_item">' +
+            '<div class="song-url-wrapper">' +
             '<input type="text" name="playlist_songs[url][]" value="' +
             url +
             '" class="playlist_song_input" readonly />' +
-            '<select name="playlist_songs[playlists][' +
-            index +
-            '][]" class="playlist_select" multiple>' +
-            selectOptions +
-            "</select>" +
-            '<button type="button" class="button remove_song_button">Remove</button>' +
+            "</div>" +
+            '<div class="playlist-actions">' +
+            '<div class="playlist-checkboxes">' +
+            "<p>Select Playlists:</p>" +
+            '<div class="checkbox-list">' +
+            checkboxOptions +
+            "</div>" +
+            "</div>" +
+            '<div class="new-playlist-wrapper">' +
+            '<input type="text" class="new_playlist_input" placeholder="New Playlist" />' +
+            '<button type="button" class="button add_new_playlist_button">' +
+            '<span class="dashicons dashicons-plus-alt"></span> Add' +
+            "</button>" +
+            "</div>" +
+            '<button type="button" class="button remove_song_button">' +
+            '<span class="dashicons dashicons-trash"></span> Remove' +
+            "</button>" +
+            "</div>" +
             "</div>"
         );
       });
@@ -95,5 +116,55 @@ jQuery(document).ready(function ($) {
 
   $(document).on("click", ".remove_song_button", function () {
     $(this).closest(".playlist_song_item").remove();
+  });
+
+  $(document).on("click", ".add_new_playlist_button", function () {
+    var button = $(this);
+    var input = button.siblings(".new_playlist_input");
+    var playlistName = input.val().trim();
+    var checkboxList = button
+      .closest(".playlist-actions")
+      .find(".checkbox-list");
+
+    if (!playlistName) {
+      alert("Please enter a playlist name");
+      return;
+    }
+
+    $.ajax({
+      url: playlist_admin_ajax.ajax_url,
+      type: "POST",
+      data: {
+        action: "create_new_playlist",
+        nonce: playlist_admin_ajax.nonce,
+        playlist_name: playlistName,
+      },
+      success: function (response) {
+        if (response.success) {
+          var index = button.closest(".playlist_song_item").index();
+          var newCheckbox =
+            '<label class="checkbox-item">' +
+            '<input type="checkbox" name="playlist_songs[playlists][' +
+            index +
+            '][]" ' +
+            'value="' +
+            response.data.id +
+            '" checked />' +
+            response.data.title +
+            "</label>";
+          checkboxList.append(newCheckbox);
+          input.val("");
+          playlist_admin_ajax.playlists.push({
+            id: response.data.id,
+            title: response.data.title,
+          });
+        } else {
+          alert("Error: " + response.data.message);
+        }
+      },
+      error: function () {
+        alert("Error creating playlist");
+      },
+    });
   });
 });

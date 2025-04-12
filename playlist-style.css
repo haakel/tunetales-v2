@@ -1,3 +1,4 @@
+/* استایل‌های عمومی */
 :root {
   --primary-color: #1e2a44;
   --secondary-color: #5a8dee;
@@ -18,13 +19,13 @@ body {
   margin: 0;
   padding: 0;
   height: 100%;
-  overflow: hidden;
 }
 
 body.tunetales-player {
   margin: 0;
   padding: 0;
   background: none;
+  overflow: hidden;
 }
 
 .webapp-player {
@@ -40,6 +41,167 @@ body.tunetales-player {
   left: 0;
 }
 
+/* متاباکس پلی‌لیست */
+.playlist_song_item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 15px;
+  padding: 15px;
+  border: 1px solid var(--primary-color);
+  border-radius: var(--radius);
+  background: var(--item-bg);
+  box-shadow: var(--shadow);
+  transition: transform 0.2s ease;
+}
+
+.playlist_song_item:hover {
+  transform: translateY(-2px);
+}
+
+.song-url-wrapper {
+  flex: 1;
+  min-width: 350px;
+  margin-right: 15px;
+}
+
+.playlist_song_input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid var(--primary-color);
+  border-radius: var(--radius);
+  background: var(--background-color);
+  color: var(--text-color);
+  font-size: 14px;
+}
+
+.playlist-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 15px;
+}
+
+.playlist-checkboxes {
+  background: var(--background-color);
+  border: 1px solid var(--primary-color);
+  border-radius: var(--radius);
+  padding: 10px;
+  max-height: 150px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--secondary-color) var(--background-color);
+}
+
+.playlist-checkboxes::-webkit-scrollbar {
+  width: 8px;
+}
+
+.playlist-checkboxes::-webkit-scrollbar-track {
+  background: var(--background-color);
+  border-radius: var(--radius);
+}
+
+.playlist-checkboxes::-webkit-scrollbar-thumb {
+  background: var(--secondary-color);
+  border-radius: var(--radius);
+}
+
+.playlist-checkboxes::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-color);
+}
+
+.playlist-checkboxes p {
+  margin: 0 0 8px;
+  font-size: 14px;
+  color: var(--text-color);
+}
+
+.checkbox-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--text-color);
+  font-size: 14px;
+}
+
+.checkbox-item input[type="checkbox"] {
+  accent-color: var(--secondary-color);
+}
+
+.new-playlist-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.new_playlist_input {
+  width: 160px;
+  padding: 8px;
+  border: 1px solid var(--secondary-color);
+  border-radius: var(--radius);
+  background: var(--background-color);
+  color: var(--text-color);
+  font-size: 14px;
+}
+
+.add_new_playlist_button,
+.remove_song_button {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--secondary-color);
+  color: var(--text-color);
+  border: none;
+  border-radius: var(--radius);
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.add_new_playlist_button:hover,
+.remove_song_button:hover {
+  background: var(--accent-color);
+  transform: scale(1.05);
+}
+
+.remove_song_button {
+  background: var(--sub-accent);
+}
+
+.remove_song_button:hover {
+  background: #e65a50;
+}
+
+.add_new_playlist_button .dashicons,
+.remove_song_button .dashicons {
+  font-size: 18px;
+  margin-right: 5px;
+}
+
+#add_multiple_songs_button {
+  background: var(--secondary-color);
+  border: none;
+  border-radius: var(--radius);
+  padding: 10px 20px;
+  font-size: 16px;
+  color: var(--text-color);
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+#add_multiple_songs_button:hover {
+  background: var(--accent-color);
+  transform: scale(1.05);
+}
+
+/* استایل‌های پخش‌کننده */
 .app-header {
   display: flex;
   justify-content: space-between;
@@ -497,7 +659,6 @@ input[type="range"]:hover {
   }
 
   .song-info .song-album {
-    /* حذف آلبوم توی موبایل */
     display: none;
   }
 
@@ -514,7 +675,6 @@ input[type="range"]:hover {
   }
 
   .song-info .song-description {
-    /* حذف توضیحات توی موبایل */
     display: none;
   }
 
