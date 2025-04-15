@@ -739,4 +739,66 @@ input[type="range"]:hover {
   .song-count {
     font-size: 10px;
   }
+
+  .control-buttons .rewind,
+  .control-buttons .fast-forward {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.2em;
+    cursor: pointer;
+    padding: 0 10px;
+  }
+
+  .control-buttons .rewind:hover,
+  .control-buttons .fast-forward:hover {
+    color: #1db954; /* رنگ دلخواه برای hover */
+  }
+  .icon-wrapper {
+    position: relative;
+    display: inline-block;
+    font-size: 20px;
+  }
+
+  .number-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 10px;
+    color: #fff;
+    font-weight: bold;
+  }
+
+  /* انیمیشن برای دکمه fast-forward (چرخش به راست) */
+  .fast-forward .fa-redo {
+    color: #1db954; /* سبز */
+    animation: spin-forward 2s linear infinite;
+  }
+
+  /* انیمیشن برای دکمه rewind (چرخش به چپ) */
+  .rewind .fa-redo {
+    color: #ff4444; /* قرمز */
+    animation: spin-backward 2s linear infinite;
+  }
+
+  /* انیمیشن چرخش به راست */
+  @keyframes spin-forward {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* انیمیشن چرخش به چپ */
+  @keyframes spin-backward {
+    0% {
+      transform: rotate(360deg);
+    }
+    100% {
+      transform: rotate(0deg);
+    }
+  }
 }

@@ -63,7 +63,6 @@ $is_archive = is_post_type_archive('playlist');
                     <p class="song-excerpt"><?php echo esc_html($attachment ? $attachment->post_excerpt : ''); ?></p>
                     <p class="song-description"><?php echo esc_html($attachment ? $attachment->post_content : ''); ?>
                     </p>
-                    <!-- برای نمایش تعداد آهنگ‌ها: اضافه کردن song-position -->
                     <span class="song-position" aria-label="Song Position"></span>
                 </div>
             </div>
@@ -82,9 +81,23 @@ $is_archive = is_post_type_archive('playlist');
                 </div>
                 <div class="control-buttons">
                     <button class="shuffle" aria-label="Shuffle Playlist"><i class="fas fa-random"></i></button>
-                    <button class="prev" aria-label="Previous Song"><i class="fas fa-backward"></i></button>
+                    <button class="prev" aria-label="Previous Song"><i class="fas fa-step-forward"></i></button>
+                    <!-- دکمه پرش به عقب -->
+                    <button class="rewind" aria-label="Rewind 15 seconds">
+                        <span class="icon-wrapper">
+                            <i class="fas fa-redo"></i>
+                            <span class="number-overlay">15</span>
+                        </span>
+                    </button>
                     <button class="play-pause" aria-label="Play or Pause"><i class="fas fa-play"></i></button>
-                    <button class="next" aria-label="Next Song"><i class="fas fa-forward"></i></button>
+                    <!-- دکمه پرش به جلو -->
+                    <button class="fast-forward" aria-label="Fast Forward 15 seconds">
+                        <span class="icon-wrapper">
+                            <i class="fas fa-undo"></i>
+                            <span class="number-overlay">15</span>
+                        </span>
+                    </button>
+                    <button class="next" aria-label="Next Song"><i class="fas fa-step-backward"></i></button>
                     <button class="repeat" title="Repeat"><i class="fas fa-redo"></i></button>
                 </div>
             </div>

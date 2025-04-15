@@ -14,6 +14,8 @@ class MusicPlayer {
   }
 
   initElements() {
+    this.$rewindBtn = jQuery(".rewind");
+    this.$fastForwardBtn = jQuery(".fast-forward");
     this.$playPauseBtn = jQuery(".play-pause");
     this.$nextBtn = jQuery(".next");
     this.$prevBtn = jQuery(".prev");
@@ -36,6 +38,8 @@ class MusicPlayer {
   }
 
   bindEvents() {
+    this.$rewindBtn.on("click", () => this.rewind15Seconds());
+    this.$fastForwardBtn.on("click", () => this.fastForward15Seconds());
     this.$playPauseBtn.on("click", () => this.togglePlayPause());
     this.$nextBtn.on("click", () => this.nextSong());
     this.$prevBtn.on("click", () => this.prevSong());
@@ -74,7 +78,11 @@ class MusicPlayer {
     // برای پشتیبانی از کیبورد: اضافه کردن event listener برای keydown
     jQuery(document).on("keydown", (e) => {
       // جلوگیری از رفتار پیش‌فرض برای کلیدهای خاص
-      if (["Space", "ArrowRight", "ArrowLeft"].includes(e.code)) {
+      if (
+        ["Space", "ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown"].includes(
+          e.code
+        )
+      ) {
         e.preventDefault();
       }
 
@@ -98,6 +106,22 @@ class MusicPlayer {
         case "KeyR": // Repeat
           this.toggleRepeat();
           this.$repeatBtn.focus();
+          break;
+        case "ArrowUp": // Fast Forward 15 seconds
+          this.fastForward15Seconds();
+          this.$fastForwardBtn.focus();
+          break;
+        case "ArrowDown": // Rewind 15 seconds
+          this.rewind15Seconds();
+          this.$rewindBtn.focus();
+          break;
+        case "KeyF": // Fast Forward 15 seconds
+          this.fastForward15Seconds();
+          this.$fastForwardBtn.focus();
+          break;
+        case "KeyB": // Rewind 15 seconds
+          this.rewind15Seconds();
+          this.$rewindBtn.focus();
           break;
       }
     });
@@ -386,6 +410,17 @@ class MusicPlayer {
     return `${minutes < 10 ? "0" : ""}${minutes}:${
       secs < 10 ? "0" : ""
     }${secs}`;
+  }
+  rewind15Seconds() {
+    const newTime = Math.max(0, this.audio.currentTime - 15);
+    this.audio.currentTime = newTime;
+    this.updateTime();
+  }
+
+  fastForward15Seconds() {
+    const newTime = Math.min(this.audio.duration, this.audio.currentTime + 15);
+    this.audio.currentTime = newTime;
+    this.updateTime();
   }
 }
 
