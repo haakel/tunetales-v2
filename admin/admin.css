@@ -1,0 +1,227 @@
+/* Music Playlist Admin Styles */
+
+.music-playlist-admin-container {
+  display: flex;
+  margin-top: 20px;
+  gap: 20px;
+}
+
+.music-playlist-admin-sidebar {
+  flex: 0 0 300px;
+}
+
+.music-playlist-admin-content {
+  flex: 1;
+}
+
+.music-playlist-admin-box {
+  background: #fff;
+  border: 1px solid #ccd0d4;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.music-playlist-list {
+  margin-top: 15px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.music-playlist-list ul {
+  margin: 0;
+  padding: 0;
+}
+
+.music-playlist-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  border-bottom: 1px solid #f0f0f0;
+  margin: 0;
+}
+
+.music-playlist-list li:last-child {
+  border-bottom: none;
+}
+
+.music-playlist-list li.active {
+  background-color: #f0f7fc;
+  font-weight: bold;
+}
+
+.music-playlist-list li a {
+  text-decoration: none;
+  color: #333;
+  flex-grow: 1;
+}
+
+.playlist-actions {
+  display: flex;
+  gap: 5px;
+}
+
+.playlist-actions a {
+  color: #72777c;
+  text-decoration: none;
+}
+
+.playlist-actions a:hover {
+  color: #0073aa;
+}
+
+.music-playlist-shortcode-info {
+  margin-top: 20px;
+  background-color: #f9f9f9;
+  padding: 10px;
+  border-radius: 3px;
+}
+
+.music-playlist-shortcode-info h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.music-playlist-shortcode-info code {
+  display: block;
+  padding: 10px;
+  margin-bottom: 10px;
+  background: #f0f0f1;
+  border-radius: 3px;
+}
+
+.music-playlist-add-track {
+  margin-bottom: 30px;
+}
+
+.form-row {
+  margin-bottom: 15px;
+  display: flex;
+  gap: 15px;
+}
+
+.form-field {
+  flex: 1;
+}
+
+.form-field label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.form-field input[type="text"] {
+  width: 100%;
+}
+
+#cover-preview {
+  margin-top: 10px;
+  max-width: 100px;
+}
+
+#cover-preview img {
+  max-width: 100%;
+  height: auto;
+}
+
+.music-playlist-tracks table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.music-playlist-tracks th.column-order {
+  width: 30px;
+}
+
+.music-playlist-tracks th.column-cover {
+  width: 60px;
+}
+
+.music-playlist-tracks th.column-artist {
+  width: 120px;
+}
+
+.music-playlist-tracks th.column-actions {
+  width: 100px;
+  text-align: right;
+}
+
+.music-playlist-tracks td.column-order {
+  cursor: move;
+  color: #72777c;
+}
+
+.music-playlist-tracks td.column-cover img {
+  border-radius: 3px;
+}
+
+.music-playlist-tracks td.column-actions {
+  text-align: right;
+}
+
+.music-playlist-audio-player {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border-top: 1px solid #ccd0d4;
+  padding: 10px;
+  z-index: 999;
+  display: none;
+}
+
+.music-playlist-audio-player.visible {
+  display: block;
+}
+
+.music-playlist-audio-player audio {
+  width: 100%;
+}
+
+/* Responsive */
+@media screen and (max-width: 782px) {
+  .music-playlist-admin-container {
+    flex-direction: column;
+  }
+
+  .music-playlist-admin-sidebar {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+
+/* WP UI compatibility fixes */
+.wp-core-ui .button-primary {
+  background: #2271b1;
+  border-color: #2271b1;
+  color: #fff;
+}
+
+.wp-core-ui .button-primary:hover,
+.wp-core-ui .button-primary:focus {
+  background: #135e96;
+  border-color: #135e96;
+  color: #fff;
+}
+
+/* Sortable table styles */
+tr.ui-sortable-helper {
+  display: table;
+  border: 1px dashed #ccc;
+  background: #f8f8f8;
+  width: 100%;
+}
+
+tr.ui-sortable-placeholder {
+  visibility: visible !important;
+  background: #f0f0f0;
+  height: 40px;
+}
