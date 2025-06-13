@@ -48,7 +48,7 @@ $is_archive = is_post_type_archive('playlist');
                     $current_song = $songs[0];
                     $attachment_id = attachment_url_to_postid($current_song['url']);
                     $thumbnail_id = get_post_thumbnail_id($attachment_id);
-                    $thumbnail = $thumbnail_id ? wp_get_attachment_image_url($thumbnail_id, 'medium') : plugin_dir_url(__FILE__) . 'default-cover.jpg';
+                    $thumbnail = $thumbnail_id ? wp_get_attachment_image_url($thumbnail_id, 'medium') : plugin_dir_url(dirname(__FILE__)) . 'assets/image/default-cover.jpg';
                     $attachment = get_post($attachment_id);
                     $metadata = wp_get_attachment_metadata($attachment_id);
                     $title = $attachment ? $attachment->post_title : 'Unknown Title';
@@ -109,7 +109,7 @@ $is_archive = is_post_type_archive('playlist');
             $playlists = new WP_Query(['post_type' => 'playlist', 'posts_per_page' => -1]);
             while ($playlists->have_posts()) : $playlists->the_post();
                 $songs = get_post_meta(get_the_ID(), '_playlist_songs', true);
-                $thumbnail = has_post_thumbnail() ? get_the_post_thumbnail_url(null, 'medium') : plugin_dir_url(__FILE__) . 'default-playlist.jpg';
+                $thumbnail = has_post_thumbnail() ? get_the_post_thumbnail_url(null, 'medium') : plugin_dir_url(dirname(__FILE__)) . 'assets/image/default-playlist.jpg';
         ?>
         <a href="<?php the_permalink(); ?>" class="playlist-card">
             <img src="<?php echo esc_url($thumbnail); ?>" alt="<?php the_title(); ?>" class="playlist-cover">

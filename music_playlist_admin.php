@@ -1,9 +1,6 @@
 <?php
-/*
-Plugin Name: TuneTales Music Playlist
-Description: پلاگین ساخت پلی‌لیست با پست‌تایپ برای TuneTales
-Author: Haakel
-*/
+
+namespace TuneTales_Music;
 
 if (!defined('ABSPATH')) exit('Access denied.');
 
@@ -101,15 +98,19 @@ class Music_Playlist_Admin {
         }
     }
 
-    public function create_playlist_post_type() {
-        register_post_type(self::POST_TYPE, [
-            'labels' => ['name' => __('Playlists'), 'singular_name' => __('Playlist')],
-            'public' => true,
-            'has_archive' => true,
-            'supports' => ['title', 'editor', 'thumbnail'],
-            'rewrite' => ['slug' => 'playlists'],
-        ]);
-    }
+function create_playlist_post_type() {
+    register_post_type('playlist', [
+        'labels' => [
+            'name' => __('Playlists'),
+            'singular_name' => __('Playlist'),
+            'add_new' => __('Add Playlist'),
+        ],
+        'public' => true,
+        'has_archive' => true,
+        'supports' => ['title', 'editor', 'thumbnail'],
+        'rewrite' => ['slug' => 'playlists'],
+    ]);
+}
 
     public function enable_thumbnail_for_attachments() {
         add_post_type_support('attachment', 'thumbnail');
@@ -134,7 +135,7 @@ class Music_Playlist_Admin {
         $id = intval($_POST['id'] ?? 0);
         $size = $_POST['size'] ?? 'medium';
         $thumbnail_id = get_post_thumbnail_id($id);
-        $url = $thumbnail_id ? wp_get_attachment_image_url($thumbnail_id, $size) : plugin_dir_url(__FILE__) . 'default-cover.jpg';
+        $url = $thumbnail_id ? wp_get_attachment_image_url($thumbnail_id, $size) : plugin_dir_url(dirname(__FILE__)) . 'default-cover.jpg';
         wp_send_json(['url' => $url]);
     }
 
@@ -153,34 +154,34 @@ class Music_Playlist_Admin {
             'post__not_in' => [$all_songs_id],
         ]);
         ?>
-<div id="playlist_songs_wrapper">
-    <?php foreach ($songs as $index => $song) : if (is_array($song)) : ?>
-    <div class="playlist_song_item">
-        <div class="song-url-wrapper">
-            <input type="text" name="playlist_songs[url][]" value="<?php echo esc_attr($song['url']); ?>"
+// <div id="playlist_songs_wrapper">
+    // <?php foreach ($songs as $index => $song) : if (is_array($song)) : ?>
+    // <div class="playlist_song_item">
+        // <div class="song-url-wrapper">
+            // <input type="text" name="playlist_songs[url][]" value="<?php echo esc_attr($song['url']); ?>" //
                 class="playlist_song_input" readonly />
-        </div>
-        <div class="playlist-actions">
-            <div class="playlist-checkboxes">
-                <p><?php _e('Select Playlists:', 'music-playlist'); ?></p>
-                <div class="checkbox-list">
-                    <?php foreach ($playlists as $playlist) : ?>
-                    <label class="checkbox-item">
-                        <input type="checkbox" name="playlist_songs[playlists][<?php echo $index; ?>][]"
-                            value="<?php echo $playlist->ID; ?>"
+            // </div>
+        // <div class="playlist-actions">
+            // <div class="playlist-checkboxes">
+                // <p><?php _e('Select Playlists:', 'music-playlist'); ?></p>
+                // <div class="checkbox-list">
+                    // <?php foreach ($playlists as $playlist) : ?>
+                    // <label class="checkbox-item">
+                        // <input type="checkbox" name="playlist_songs[playlists][<?php echo $index; ?>][]" //
+                            value="<?php echo $playlist->ID; ?>" //
                             <?php echo in_array($playlist->ID, $song['playlists'] ?? []) ? 'checked' : ''; ?> />
-                        <?php echo esc_html($playlist->post_title); ?>
-                    </label>
-                    <?php endforeach; ?>
-                </div>
-            </div>
-            <div class="new-playlist-wrapper">
-                <input type="text" class="new_playlist_input"
+                        // <?php echo esc_html($playlist->post_title); ?>
+                        // </label>
+                    // <?php endforeach; ?>
+                    // </div>
+                // </div>
+            // <div class="new-playlist-wrapper">
+                // <input type="text" class="new_playlist_input" //
                     placeholder="<?php _e('New Playlist', 'music-playlist'); ?>" />
-                <button type="button" class="button add_new_playlist_button">
-                    <span class="dashicons dashicons-plus-alt"></span> <?php _e('Add', 'music-playlist'); ?>
-                </button>
-            </div>
+                // <button type="button" class="button add_new_playlist_button">
+                    // <span class="dashicons dashicons-plus-alt"></span> <?php _e('Add', 'music-playlist'); ?>
+                    // </button>
+                // </div>
             <button type="button" class="button remove_song_button">
                 <span class="dashicons dashicons-trash"></span> <?php _e('Remove', 'music-playlist'); ?>
             </button>

@@ -292,12 +292,13 @@ class MusicPlayer {
     );
 
     const src = songData.data("src");
-    const defaultCover = tunetales_vars.plugin_url + "/default-cover.jpg";
+    const defaultCover =
+      tunetales_vars.plugin_url + "../assets/image/default-cover.jpg";
     if (!src) {
       console.error("Song source is empty");
       // برای انیمیشن تغییر آهنگ: اعمال fade
       this.$coverArt.removeClass("fade");
-      this.$coverArt.attr("src", defaultCover);
+      // this.$coverArt.attr("src", defaultCover);
       this.$coverArt.addClass("fade");
       return;
     }
