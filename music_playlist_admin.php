@@ -23,7 +23,6 @@ class Music_Playlist_Admin {
     }
 
     private function register_hooks() {
-        require plugin_dir_path(__FILE__) . 'admin/admin.php';
         // هوک‌های مربوط به پست‌تایپ و فعال‌سازی
         add_action('init', [$this, 'create_playlist_post_type']);
         add_action('init', [$this, 'enable_thumbnail_for_attachments']);
@@ -206,101 +205,69 @@ class Music_Playlist_Admin {
         return !empty($posts) ? $posts[0]->ID : 0;
     }
 
-    public function save_playlist_songs($post_id)
-    {
-        if (!$this->can_save($post_id)) {
-            return;
-        }
-
+    public function save_playlist_songs($post_id) {
+        if (!$this->can_save($post_id)) return;
         $songs = $this->sanitize_songs_data();
         $all_songs_id = $this->get_all_songs_post_id();
 
-        // افزودن شناسه یکتا به هر آهنگ اگر وجود نداشته باشد
+        // مطمئن می‌شیم پلی‌لیست فعلی توی آرایه playlists هر آهنگ باشه
         foreach ($songs as &$song) {
-            if (!isset($song['id']) || empty($song['id'])) {
-                $song['id'] = uniqid('song_', true);
-            }
-
             if (!isset($song['playlists']) || !is_array($song['playlists'])) {
                 $song['playlists'] = [];
             }
-
             if (!in_array($post_id, $song['playlists'])) {
                 $song['playlists'][] = $post_id;
             }
-
-            // حذف شناسه پلی‌لیست All Songs برای جلوگیری از تداخل
-            $song['playlists'] = array_filter($song['playlists'], function ($id) use ($all_songs_id) {
+            // حذف "همه آهنگ‌ها" از آرایه playlists (چون توی UI نباید نمایش داده بشه)
+            $song['playlists'] = array_filter($song['playlists'], function($id) use ($all_songs_id) {
                 return $id != $all_songs_id;
             });
         }
         unset($song);
 
-        // ذخیره داده‌ها برای این پلی‌لیست
+        // ذخیره آهنگ‌ها توی پلی‌لیست فعلی
         update_post_meta($post_id, self::META_KEY_SONGS, $songs);
 
-        // بارگذاری پلی‌لیست‌های دیگر (به جز این پلی‌لیست و پلی‌لیست All Songs)
-        $args = [
-            'post_type' => self::POST_TYPE,
-            'post__not_in' => [$post_id, $all_songs_id],
-            'posts_per_page' => -1,
-            'fields' => 'ids',
-        ];
-        $playlists = get_posts($args);
-
-        // به‌روزرسانی پلی‌لیست‌های دیگر که شامل این آهنگ‌ها هستند
-        foreach ($playlists as $playlist_id) {
-            $playlist_songs = get_post_meta($playlist_id, self::META_KEY_SONGS, true);
-            if (!is_array($playlist_songs)) {
-                $playlist_songs = [];
-            }
-
-            // حذف آهنگ‌هایی که به این پلی‌لیست تعلق ندارند
-            $playlist_songs = array_filter($playlist_songs, function ($song) use ($songs, $playlist_id) {
-                if (!isset($song['id'])) {
-                    return false;
+        // اضافه کردن آهنگ‌ها به پلی‌لیست "All Songs"
+        if ($all_songs_id) {
+            $all_songs = get_post_meta($all_songs_id, self::META_KEY_SONGS, true) ?: [];
+            foreach ($songs as $song) {
+                $song_exists = false;
+                foreach ($all_songs as $existing_song) {
+                    if ($existing_song['url'] === $song['url']) {
+                        $song_exists = true;
+                        break;
+                    }
                 }
+                if (!$song_exists) {
+                    $all_songs[] = $song;
+                }
+            }
+            update_post_meta($all_songs_id, self::META_KEY_SONGS, $all_songs);
+        }
 
-                // اگر آهنگ در پلی‌لیست فعلی وجود داشته باشد و شامل این پلی‌لیست باشد، نگه داشته شود
-                foreach ($songs as $newSong) {
-                    if ($newSong['id'] === $song['id']) {
-                        if (in_array($playlist_id, $newSong['playlists'])) {
-                            return true;
+        // اضافه کردن به پلی‌لیست‌های انتخاب‌شده
+        foreach ($songs as $song) {
+            if (!empty($song['playlists'])) {
+                foreach ($song['playlists'] as $playlist_id) {
+                    if ($playlist_id != $post_id && $playlist_id != $all_songs_id) {
+                        $playlist_songs = get_post_meta($playlist_id, self::META_KEY_SONGS, true) ?: [];
+                        $song_exists = false;
+                        foreach ($playlist_songs as $existing_song) {
+                            if ($existing_song['url'] === $song['url']) {
+                                $song_exists = true;
+                                break;
+                            }
+                        }
+                        if (!$song_exists) {
+                            $playlist_songs[] = $song;
+                            update_post_meta($playlist_id, self::META_KEY_SONGS, $playlist_songs);
                         }
                     }
                 }
-                return false;
-            });
-
-            update_post_meta($playlist_id, self::META_KEY_SONGS, $playlist_songs);
-        }
-
-        // به‌روزرسانی پلی‌لیست All Songs
-        $all_songs = get_post_meta($all_songs_id, self::META_KEY_SONGS, true);
-        if (!is_array($all_songs)) {
-            $all_songs = [];
-        }
-
-        // افزودن آهنگ‌های جدید یا به‌روزرسانی شده به پلی‌لیست All Songs
-        foreach ($songs as $newSong) {
-            $found = false;
-            foreach ($all_songs as &$existingSong) {
-                if ($existingSong['id'] === $newSong['id']) {
-                    $existingSong = $newSong;
-                    $found = true;
-                    break;
-                }
-            }
-            unset($existingSong);
-
-            if (!$found) {
-                $all_songs[] = $newSong;
             }
         }
-
-        update_post_meta($all_songs_id, self::META_KEY_SONGS, $all_songs);
     }
-
 
     private function can_save($post_id) {
         if (!isset($_POST['playlist_songs_nonce']) || !wp_verify_nonce($_POST['playlist_songs_nonce'], self::NONCE_ACTION)) return false;
@@ -317,7 +284,6 @@ class Music_Playlist_Admin {
                     ? array_map('intval', $_POST['playlist_songs']['playlists'][$index]) 
                     : [];
                 $songs[] = [
-                    'id' => uniqid(), // 🔹 افزودن شناسه یکتا
                     'url' => esc_url_raw($url),
                     'playlists' => $playlist_ids,
                 ];
