@@ -1,804 +1,911 @@
-/* استایل‌های عمومی */
+/* تعریف متغیرهای CSS برای استفاده در استایل‌های عمومی */
 :root {
-  --primary-color: #1e2a44;
-  --secondary-color: #5a8dee;
-  --accent-color: #00ddeb;
-  --background-color: #121a2d;
-  --text-color: #e0e0e0;
-  --item-bg: #2a3b5a;
-  --playing-bg-start: #5a8dee;
-  --playing-bg-end: #00ddeb;
-  --sub-accent: #ff6f61;
-  --shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-  --radius: 12px;
-  --padding: 16px;
+  --primary-color: #1e2a44; /* رنگ اصلی، استفاده‌شده برای پس‌زمینه‌ها و حاشیه‌ها */
+  --secondary-color: #5a8dee; /* رنگ ثانویه، اغلب برای دکمه‌ها و عناصر تعاملی */
+  --accent-color: #00ddeb; /* رنگ برجسته، برای جلب توجه در عناصر خاص */
+  --background-color: #121a2d; /* رنگ پس‌زمینه اصلی برنامه */
+  --text-color: #e0e0e0; /* رنگ متن پیش‌فرض */
+  --item-bg: #2a3b5a; /* رنگ پس‌زمینه آیتم‌های لیست */
+  --playing-bg-start: #5a8dee; /* رنگ شروع گرادیان برای آیتم در حال پخش */
+  --playing-bg-end: #00ddeb; /* رنگ پایان گرادیان برای آیتم در حال پخش */
+  --sub-accent: #ff6f61; /* رنگ مکمل برای دکمه‌های خاص مانند حذف */
+  --shadow: 0 8px 20px rgba(0, 0, 0, 0.3); /* سایه برای عمق دادن به عناصر */
+  --radius: 12px; /* شعاع گوشه‌ها برای عناصر گرد */
+  --padding: 16px; /* فاصله‌گذاری داخلی پیش‌فرض */
 }
 
+/* تنظیمات پایه برای HTML و Body */
 html,
 body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
+  margin: 0; /* حذف حاشیه‌های پیش‌فرض */
+  padding: 0; /* حذف فاصله‌گذاری داخلی پیش‌فرض */
+  height: 100%; /* تنظیم ارتفاع به کل صفحه */
 }
 
+/* استایل برای بدنه پخش‌کننده TuneTales */
 body.tunetales-player {
-  margin: 0;
-  padding: 0;
-  background: none;
-  overflow: hidden;
+  margin: 0; /* حذف حاشیه */
+  padding: 0; /* حذف فاصله‌گذاری داخلی */
+  background: none; /* حذف پس‌زمینه پیش‌فرض */
+  overflow: hidden; /* جلوگیری از اسکرول غیرضروری */
 }
 
+/* استایل پخش‌کننده وب‌اپلیکیشن */
 .webapp-player {
-  width: 100vw;
-  height: 100vh;
-  background: linear-gradient(135deg, var(--background-color), #1e2a44);
-  color: var(--text-color);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  position: fixed;
-  top: 0;
-  left: 0;
+  width: 100vw; /* عرض کل صفحه */
+  height: 100vh; /* ارتفاع کل صفحه */
+  background: linear-gradient(
+    135deg,
+    var(--background-color),
+    #1e2a44
+  ); /* گرادیان پس‌زمینه */
+  color: var(--text-color); /* رنگ متن */
+  display: flex; /* استفاده از فلکس‌باکس برای چیدمان */
+  flex-direction: column; /* چیدمان عمودی */
+  overflow: hidden; /* جلوگیری از اسکرول */
+  position: fixed; /* ثابت کردن موقعیت پخش‌کننده */
+  top: 0; /* قرارگیری در بالای صفحه */
+  left: 0; /* قرارگیری در سمت چپ صفحه */
 }
 
-/* متاباکس پلی‌لیست */
+/* استایل آیتم‌های پلی‌لیست در متاباکس */
 .playlist_song_item {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  margin-bottom: 15px;
-  padding: 15px;
-  border: 1px solid var(--primary-color);
-  border-radius: var(--radius);
-  background: var(--item-bg);
-  box-shadow: var(--shadow);
-  transition: transform 0.2s ease;
+  display: flex; /* چیدمان فلکس برای آیتم‌ها */
+  flex-wrap: wrap; /* امکان انتقال به خط بعدی در صورت کمبود فضا */
+  align-items: center; /* تراز عمودی وسط */
+  margin-bottom: 15px; /* فاصله زیرین */
+  padding: 15px; /* فاصله‌گذاری داخلی */
+  border: 1px solid var(--primary-color); /* حاشیه با رنگ اصلی */
+  border-radius: var(--radius); /* گوشه‌های گرد */
+  background: var(--item-bg); /* پس‌زمینه آیتم */
+  box-shadow: var(--shadow); /* سایه برای عمق */
+  transition: transform 0.2s ease; /* انیمیشن برای تغییر موقعیت */
 }
 
+/* افکت هاور برای آیتم‌های پلی‌لیست */
 .playlist_song_item:hover {
-  transform: translateY(-2px);
+  transform: translateY(-2px); /* جابجایی عمودی به سمت بالا */
 }
 
+/* استایل wrapper برای URL آهنگ */
 .song-url-wrapper {
-  flex: 1;
-  min-width: 350px;
-  margin-right: 15px;
+  flex: 1; /* اشغال فضای موجود */
+  min-width: 350px; /* حداقل عرض */
+  margin-right: 15px; /* فاصله از سمت راست */
 }
 
+/* استایل ورودی URL آهنگ */
 .playlist_song_input {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid var(--primary-color);
-  border-radius: var(--radius);
-  background: var(--background-color);
-  color: var(--text-color);
-  font-size: 14px;
+  width: 100%; /* عرض کامل */
+  padding: 8px; /* فاصله‌گذاری داخلی */
+  border: 1px solid var(--primary-color); /* حاشیه با رنگ اصلی */
+  border-radius: var(--radius); /* گوشه‌های گرد */
+  background: var(--background-color); /* پس‌زمینه ورودی */
+  color: var(--text-color); /* رنگ متن */
+  font-size: 14px; /* اندازه فونت */
 }
 
+/* استایل بخش اقدامات پلی‌لیست */
 .playlist-actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 15px;
+  display: flex; /* چیدمان فلکس */
+  flex-wrap: wrap; /* امکان انتقال به خط بعدی */
+  align-items: center; /* تراز عمودی وسط */
+  gap: 15px; /* فاصله بین عناصر */
 }
 
+/* استایل باکس چک‌باکس‌ها */
 .playlist-checkboxes {
-  background: var(--background-color);
-  border: 1px solid var(--primary-color);
-  border-radius: var(--radius);
-  padding: 10px;
-  max-height: 150px;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--secondary-color) var(--background-color);
+  background: var(--background-color); /* پس‌زمینه */
+  border: 1px solid var(--primary-color); /* حاشیه */
+  border-radius: var(--radius); /* گوشه‌های گرد */
+  padding: 10px; /* فاصله‌گذاری داخلی */
+  max-height: 150px; /* حداکثر ارتفاع */
+  overflow-y: auto; /* اسکرول عمودی */
+  scrollbar-width: thin; /* عرض اسکرول‌بار */
+  scrollbar-color: var(--secondary-color) var(--background-color); /* رنگ اسکرول‌بار */
 }
 
+/* استایل اسکرول‌بار برای مرورگرهای Webkit */
 .playlist-checkboxes::-webkit-scrollbar {
-  width: 8px;
+  width: 8px; /* عرض اسکرول‌بار */
 }
 
 .playlist-checkboxes::-webkit-scrollbar-track {
-  background: var(--background-color);
-  border-radius: var(--radius);
+  background: var(--background-color); /* پس‌زمینه مسیر اسکرول */
+  border-radius: var(--radius); /* گوشه‌های گرد */
 }
 
 .playlist-checkboxes::-webkit-scrollbar-thumb {
-  background: var(--secondary-color);
-  border-radius: var(--radius);
+  background: var(--secondary-color); /* رنگ اسکرول‌بار */
+  border-radius: var(--radius); /* گوشه‌های گرد */
 }
 
 .playlist-checkboxes::-webkit-scrollbar-thumb:hover {
-  background: var(--accent-color);
+  background: var(--accent-color); /* رنگ اسکرول‌بار در حالت هاور */
 }
 
+/* استایل پاراگراف‌های داخل باکس چک‌باکس */
 .playlist-checkboxes p {
-  margin: 0 0 8px;
-  font-size: 14px;
-  color: var(--text-color);
+  margin: 0 0 8px; /* حاشیه زیرین */
+  font-size: 14px; /* اندازه فونت */
+  color: var(--text-color); /* رنگ متن */
 }
 
+/* استایل لیست چک‌باکس‌ها */
 .checkbox-list {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
+  display: flex; /* چیدمان فلکس */
+  flex-direction: column; /* چیدمان عمودی */
+  gap: 5px; /* فاصله بین آیتم‌ها */
 }
 
+/* استایل آیتم‌های چک‌باکس */
 .checkbox-item {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  color: var(--text-color);
-  font-size: 14px;
+  display: flex; /* چیدمان فلکس */
+  align-items: center; /* تراز عمودی وسط */
+  gap: 5px; /* فاصله بین عناصر */
+  color: var(--text-color); /* رنگ متن */
+  font-size: 14px; /* اندازه فونت */
 }
 
+/* استایل چک‌باکس */
 .checkbox-item input[type="checkbox"] {
-  accent-color: var(--secondary-color);
+  accent-color: var(--secondary-color); /* رنگ چک‌باکس */
 }
 
+/* استایل wrapper برای پلی‌لیست جدید */
 .new-playlist-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  display: flex; /* چیدمان فلکس */
+  align-items: center; /* تراز عمودی وسط */
+  gap: 8px; /* فاصله بین عناصر */
 }
 
+/* استایل ورودی پلی‌لیست جدید */
 .new_playlist_input {
-  width: 160px;
-  padding: 8px;
-  border: 1px solid var(--secondary-color);
-  border-radius: var(--radius);
-  background: var(--background-color);
-  color: var(--text-color);
-  font-size: 14px;
+  width: 160px; /* عرض ثابت */
+  padding: 8px; /* فاصله‌گذاری داخلی */
+  border: 1px solid var(--secondary-color); /* حاشیه با رنگ ثانویه */
+  border-radius: var(--radius); /* گوشه‌های گرد */
+  background: var(--background-color); /* پس‌زمینه */
+  color: var(--text-color); /* رنگ متن */
+  font-size: 14px; /* اندازه فونت */
 }
 
+/* استایل دکمه‌های افزودن و حذف */
 .add_new_playlist_button,
 .remove_song_button {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  background: var(--secondary-color);
-  color: var(--text-color);
-  border: none;
-  border-radius: var(--radius);
-  padding: 8px 12px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: background 0.3s ease, transform 0.2s ease;
+  display: flex; /* چیدمان فلکس */
+  align-items: center; /* تراز عمودی وسط */
+  gap: 5px; /* فاصله بین آیکون و متن */
+  background: var(--secondary-color); /* پس‌زمینه دکمه */
+  color: var(--text-color); /* رنگ متن */
+  border: none; /* حذف حاشیه */
+  border-radius: var(--radius); /* گوشه‌های گرد */
+  padding: 8px 12px; /* فاصله‌گذاری داخلی */
+  font-size: 14px; /* اندازه فونت */
+  cursor: pointer; /* نشانگر ماوس */
+  transition: background 0.3s ease, transform 0.2s ease; /* انیمیشن تغییر رنگ و مقیاس */
 }
 
+/* افکت هاور برای دکمه‌های افزودن و حذف */
 .add_new_playlist_button:hover,
 .remove_song_button:hover {
-  background: var(--accent-color);
-  transform: scale(1.05);
+  background: var(--accent-color); /* تغییر رنگ پس‌زمینه */
+  transform: scale(1.05); /* بزرگ‌نمایی */
 }
 
+/* استایل خاص دکمه حذف */
 .remove_song_button {
-  background: var(--sub-accent);
+  background: var(--sub-accent); /* رنگ مکمل برای دکمه حذف */
 }
 
+/* افکت هاور برای دکمه حذف */
 .remove_song_button:hover {
-  background: #e65a50;
+  background: #e65a50; /* رنگ تیره‌تر برای هاور */
 }
 
+/* استایل آیکون‌های Dashicons در دکمه‌ها */
 .add_new_playlist_button .dashicons,
 .remove_song_button .dashicons {
-  font-size: 18px;
-  margin-right: 5px;
+  font-size: 18px; /* اندازه آیکون */
+  margin-right: 5px; /* فاصله از متن */
 }
 
+/* استایل دکمه افزودن چندین آهنگ */
 #add_multiple_songs_button {
-  background: var(--secondary-color);
-  border: none;
-  border-radius: var(--radius);
-  padding: 10px 20px;
-  font-size: 16px;
-  color: var(--text-color);
-  transition: background 0.3s ease, transform 0.2s ease;
+  background: var(--secondary-color); /* پس‌زمینه */
+  border: none; /* حذف حاشیه */
+  border-radius: var(--radius); /* گوشه‌های گرد */
+  padding: 10px 20px; /* فاصله‌گذاری داخلی */
+  font-size: 16px; /* اندازه فونت */
+  color: var(--text-color); /* رنگ متن */
+  transition: background 0.3s ease, transform 0.2s ease; /* انیمیشن تغییر رنگ و مقیاس */
 }
 
+/* افکت هاور برای دکمه افزودن چندین آهنگ */
 #add_multiple_songs_button:hover {
-  background: var(--accent-color);
-  transform: scale(1.05);
+  background: var(--accent-color); /* تغییر رنگ پس‌زمینه */
+  transform: scale(1.05); /* بزرگ‌نمایی */
 }
 
-/* استایل‌های پخش‌کننده */
+/* استایل هدر پخش‌کننده */
 .app-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: var(--padding);
-  background: var(--primary-color);
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(10px);
-  z-index: 10;
+  display: flex; /* چیدمان فلکس */
+  justify-content: space-between; /* توزیع فضا بین عناصر */
+  align-items: center; /* تراز عمودی وسط */
+  padding: var(--padding); /* فاصله‌گذاری داخلی */
+  background: var(--primary-color); /* پس‌زمینه هدر */
+  box-shadow: var(--shadow); /* سایه */
+  backdrop-filter: blur(10px); /* افکت بلور */
+  z-index: 10; /* اولویت نمایش */
 }
 
+/* استایل دکمه تغییر وضعیت سایدبار */
 .sidebar-toggle {
-  background: none;
-  border: none;
-  color: var(--text-color);
-  font-size: 20px;
-  cursor: pointer;
-  padding: 8px;
-  display: none;
+  background: none; /* بدون پس‌زمینه */
+  border: none; /* بدون حاشیه */
+  color: var(--text-color); /* رنگ آیکون */
+  font-size: 20px; /* اندازه فونت */
+  cursor: pointer; /* نشانگر ماوس */
+  padding: 8px; /* فاصله‌گذاری داخلی */
+  display: none; /* مخفی در حالت پیش‌فرض */
 }
 
+/* استایل عنوان برنامه */
 .app-title {
-  margin: 0;
-  font-size: 28px;
-  font-weight: bold;
-  letter-spacing: 1px;
+  margin: 0; /* حذف حاشیه */
+  font-size: 28px; /* اندازه فونت */
+  font-weight: bold; /* وزن فونت */
+  letter-spacing: 1px; /* فاصله بین حروف */
 }
 
+/* استایل دکمه بازگشت به آرشیو */
 .back-to-archive {
-  background: var(--secondary-color);
-  color: var(--text-color);
-  border: none;
-  padding: 8px 16px;
-  border-radius: var(--radius);
-  cursor: pointer;
-  transition: background 0.3s ease, transform 0.2s ease;
+  background: var(--secondary-color); /* پس‌زمینه */
+  color: var(--text-color); /* رنگ متن */
+  border: none; /* بدون حاشیه */
+  padding: 8px 16px; /* فاصله‌گذاری داخلی */
+  border-radius: var(--radius); /* گوشه‌های گرد */
+  cursor: pointer; /* نشانگر ماوس */
+  transition: background 0.3s ease, transform 0.2s ease; /* انیمیشن تغییر رنگ و مقیاس */
 }
 
+/* افکت هاور برای دکمه بازگشت */
 .back-to-archive:hover {
-  background: var(--accent-color);
-  transform: scale(1.05);
+  background: var(--accent-color); /* تغییر رنگ پس‌زمینه */
+  transform: scale(1.05); /* بزرگ‌نمایی */
 }
 
+/* استایل بخش اصلی پخش‌کننده */
 .player-main {
-  flex: 1;
-  display: flex;
-  overflow: hidden;
+  flex: 1; /* اشغال فضای موجود */
+  display: flex; /* چیدمان فلکس */
+  overflow: hidden; /* جلوگیری از اسکرول */
 }
 
+/* استایل سایدبار */
 .sidebar {
-  width: 300px;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  padding: var(--padding);
-  overflow-y: auto;
-  overflow-x: hidden;
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
-  transition: transform 0.3s ease;
+  width: 300px; /* عرض ثابت */
+  background: rgba(255, 255, 255, 0.05); /* پس‌زمینه با شفافیت */
+  backdrop-filter: blur(10px); /* افکت بلور */
+  padding: var(--padding); /* فاصله‌گذاری داخلی */
+  overflow-y: auto; /* اسکرول عمودی */
+  overflow-x: hidden; /* جلوگیری از اسکرول افقی */
+  border-right: 1px solid rgba(255, 255, 255, 0.1); /* حاشیه راست */
+  transition: transform 0.3s ease; /* انیمیشن تغییر موقعیت */
 }
 
+/* استایل محتوای اصلی */
 .main-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: var(--padding);
-  overflow: hidden;
+  flex: 1; /* اشغال فضای موجود */
+  display: flex; /* چیدمان فلکس */
+  flex-direction: column; /* چیدمان عمودی */
+  align-items: center; /* تراز افقی وسط */
+  justify-content: center; /* تراز عمودی وسط */
+  padding: var(--padding); /* فاصله‌گذاری داخلی */
+  overflow: hidden; /* جلوگیری از اسکرول */
 }
 
+/* استایل بخش در حال پخش */
 .now-playing {
-  text-align: center;
-  margin-bottom: 30px;
-  max-height: 60vh;
-  overflow: hidden;
+  text-align: center; /* تراز متن وسط */
+  margin-bottom: 30px; /* فاصله زیرین */
+  max-height: 60vh; /* حداکثر ارتفاع */
+  overflow: hidden; /* جلوگیری از اسکرول */
 }
 
+/* استایل تصویر کاور */
 .cover-art {
-  width: 400px;
-  height: 400px;
-  object-fit: cover;
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  transition: transform 0.3s ease;
+  width: 400px; /* عرض ثابت */
+  height: 400px; /* ارتفاع ثابت */
+  object-fit: cover; /* پر کردن کادر بدون اعوجاج */
+  border-radius: var(--radius); /* گوشه‌های گرد */
+  box-shadow: var(--shadow); /* سایه */
+  transition: transform 0.3s ease; /* انیمیشن تغییر مقیاس */
 }
 
+/* افکت هاور برای تصویر کاور */
 .cover-art:hover {
-  transform: scale(1.02);
+  transform: scale(1.02); /* بزرگ‌نمایی */
 }
 
+/* افکت محو شدن برای تصویر کاور */
 .cover-art.fade {
-  animation: fade 0.5s ease-in-out;
+  animation: fade 0.5s ease-in-out; /* انیمیشن محو شدن */
 }
 
+/* تعریف انیمیشن محو شدن */
 @keyframes fade {
   0% {
-    opacity: 0;
+    opacity: 0; /* شروع با شفافیت کامل */
   }
   100% {
-    opacity: 1;
+    opacity: 1; /* پایان با نمایش کامل */
   }
 }
 
+/* استایل اطلاعات آهنگ */
 .song-info {
-  margin-top: 20px;
-  max-height: 25vh;
-  overflow: hidden;
+  margin-top: 20px; /* فاصله از بالا */
+  max-height: 25vh; /* حداکثر ارتفاع */
+  overflow: hidden; /* جلوگیری از اسکرول */
 }
 
+/* استایل عنوان آهنگ */
 .song-info .song-title {
-  font-size: 28px;
-  font-weight: bold;
-  margin-bottom: 5px;
-  display: block;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  line-height: 1.2;
+  font-size: 28px; /* اندازه فونت */
+  font-weight: bold; /* وزن فونت */
+  margin-bottom: 5px; /* فاصله زیرین */
+  display: block; /* نمایش به‌صورت بلوک */
+  white-space: nowrap; /* جلوگیری از شکست خط */
+  overflow: hidden; /* مخفی کردن محتوای اضافی */
+  text-overflow: ellipsis; /* نمایش سه‌نقطه برای متن بلند */
+  line-height: 1.2; /* ارتفاع خط */
 }
 
+/* استایل نام هنرمند */
 .song-info .song-artist {
-  font-size: 20px;
-  opacity: 0.8;
-  display: block;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  line-height: 1.2;
+  font-size: 20px; /* اندازه فونت */
+  opacity: 0.8; /* شفافیت */
+  display: block; /* نمایش به‌صورت بلوک */
+  white-space: nowrap; /* جلوگیری از شکست خط */
+  overflow: hidden; /* مخفی کردن محتوای اضافی */
+  text-overflow: ellipsis; /* نمایش سه‌نقطه */
+  line-height: 1.2; /* ارتفاع خط */
 }
 
+/* استایل نام آلبوم */
 .song-info .song-album {
-  font-size: 18px;
-  opacity: 0.7;
-  margin-top: 5px;
-  display: block;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  line-height: 1.2;
+  font-size: 18px; /* اندازه فونت */
+  opacity: 0.7; /* شفافیت */
+  margin-top: 5px; /* فاصله از بالا */
+  display: block; /* نمایش به‌صورت بلوک */
+  white-space: nowrap; /* جلوگیری از شکست خط */
+  overflow: hidden; /* مخفی کردن محتوای اضافی */
+  text-overflow: ellipsis; /* نمایش سه‌نقطه */
+  line-height: 1.2; /* ارتفاع خط */
 }
 
+/* استایل توضیح کوتاه آهنگ */
 .song-info .song-excerpt {
-  font-size: 16px;
-  margin-top: 5px;
-  opacity: 0.9;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  display: box;
-  line-clamp: 1;
-  box-orient: vertical;
-  line-height: 1.2;
+  font-size: 16px; /* اندازه فونت */
+  margin-top: 5px; /* فاصله از بالا */
+  opacity: 0.9; /* شفافیت */
+  overflow: hidden; /* مخفی کردن محتوای اضافی */
+  text-overflow: ellipsis; /* نمایش سه‌نقطه */
+  display: -webkit-box; /* پشتیبانی از چند خط */
+  -webkit-line-clamp: 1; /* محدود به یک خط */
+  -webkit-box-orient: vertical; /* جهت عمودی */
+  display: box; /* برای مرورگرهای قدیمی */
+  line-clamp: 1; /* محدود به یک خط */
+  box-orient: vertical; /* جهت عمودی */
+  line-height: 1.2; /* ارتفاع خط */
 }
 
+/* استایل توضیحات آهنگ */
 .song-info .song-description {
-  font-size: 14px;
-  margin-top: 5px;
-  opacity: 0.8;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  display: box;
-  line-clamp: 1;
-  box-orient: vertical;
-  line-height: 1.2;
+  font-size: 14px; /* اندازه فونت */
+  margin-top: 5px; /* فاصله از بالا */
+  opacity: 0.8; /* شفافیت */
+  overflow: hidden; /* مخفی کردن محتوای اضافی */
+  text-overflow: ellipsis; /* نمایش سه‌نقطه */
+  display: -webkit-box; /* پشتیبانی از چند خط */
+  -webkit-line-clamp: 1; /* محدود به یک خط */
+  -webkit-box-orient: vertical; /* جهت عمودی */
+  display: box; /* برای مرورگرهای قدیمی */
+  line-clamp: 1; /* محدود به یک خط */
+  box-orient: vertical; /* جهت عمودی */
+  line-height: 1.2; /* ارتفاع خط */
 }
 
+/* استایل موقعیت آهنگ */
 .song-info .song-position {
-  font-size: 16px;
-  margin-top: 5px;
-  opacity: 0.9;
-  display: block;
-  color: var(--accent-color);
-  line-height: 1.2;
+  font-size: 16px; /* اندازه فونت */
+  margin-top: 5px; /* فاصله از بالا */
+  opacity: 0.9; /* شفافیت */
+  display: block; /* نمایش به‌صورت بلوک */
+  color: var(--accent-color); /* رنگ برجسته */
+  line-height: 1.2; /* ارتفاع خط */
 }
 
+/* استایل کنترل‌های پخش‌کننده */
 .player-controls {
-  width: 100%;
-  max-width: 800px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 15px;
-  margin-bottom: 30px;
-  background: rgba(255, 255, 255, 0.05);
-  padding: 10px;
-  border-radius: var(--radius);
-  backdrop-filter: blur(10px);
+  width: 100%; /* عرض کامل */
+  max-width: 800px; /* حداکثر عرض */
+  display: flex; /* چیدمان فلکس */
+  flex-direction: column; /* چیدمان عمودی */
+  align-items: center; /* تراز افقی وسط */
+  gap: 15px; /* فاصله بین عناصر */
+  margin-bottom: 30px; /* فاصله زیرین */
+  background: rgba(255, 255, 255, 0.05); /* پس‌زمینه با شفافیت */
+  padding: 10px; /* فاصله‌گذاری داخلی */
+  border-radius: var(--radius); /* گوشه‌های گرد */
+  backdrop-filter: blur(10px); /* افکت بلور */
 }
 
+/* استایل کانتینر رنج */
 .range-container {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
+  width: 100%; /* عرض کامل */
+  display: flex; /* چیدمان فلکس */
+  flex-direction: column; /* چیدمان عمودی */
+  gap: 15px; /* فاصله بین عناصر */
 }
 
+/* استایل دکمه‌های کنترل */
 .control-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
+  display: flex; /* چیدمان فلکس */
+  justify-content: center; /* تراز افقی وسط */
+  gap: 15px; /* فاصله بین دکمه‌ها */
 }
 
+/* استایل دکمه‌های پخش‌کننده */
 .player-controls button {
-  background: var(--primary-color);
-  color: #ffffff;
-  border: none;
-  padding: 12px;
-  cursor: pointer;
-  border-radius: var(--radius);
-  font-size: 18px;
-  transition: background-color 0.3s ease, transform 0.2s ease;
+  background: var(--primary-color); /* پس‌زمینه */
+  color: #ffffff; /* رنگ متن */
+  border: none; /* بدون حاشیه */
+  padding: 12px; /* فاصله‌گذاری داخلی */
+  cursor: pointer; /* نشانگر ماوس */
+  border-radius: var(--radius); /* گوشه‌های گرد */
+  font-size: 18px; /* اندازه فونت */
+  transition: background-color 0.3s ease, transform 0.2s ease; /* انیمیشن تغییر رنگ و مقیاس */
 }
 
+/* افکت هاور و فوکوس برای دکمه‌های پخش‌کننده */
 .player-controls button:hover,
 .player-controls button:focus {
-  background: var(--secondary-color);
-  transform: translateY(-2px);
-  outline: none;
+  background: var(--secondary-color); /* تغییر رنگ پس‌زمینه */
+  transform: translateY(-2px); /* جابجایی به بالا */
+  outline: none; /* حذف حاشیه فوکوس */
 }
 
+/* استایل دکمه فعال */
 .player-controls button.active {
-  background: var(--sub-accent);
+  background: var(--sub-accent); /* رنگ مکمل برای حالت فعال */
 }
 
+/* استایل دکمه تکرار */
 .repeat {
-  position: relative;
-  transition: all 0.3s ease;
+  position: relative; /* موقعیت نسبی */
+  transition: all 0.3s ease; /* انیمیشن برای تمام تغییرات */
 }
 
+/* استایل دکمه تکرار در حالت غیرفعال */
 .repeat:not(.repeat-one):not(.repeat-all) {
-  background: var(--primary-color);
-  color: #ffffff;
-  opacity: 0.6;
+  background: var(--primary-color); /* پس‌زمینه */
+  color: #ffffff; /* رنگ متن */
+  opacity: 0.6; /* شفافیت */
 }
 
+/* استایل دکمه تکرار تک آهنگ */
 .repeat.repeat-one {
-  background: #ff6f61;
-  color: #ffffff;
-  opacity: 1;
+  background: #ff6f61; /* رنگ مکمل */
+  color: #ffffff; /* رنگ متن */
+  opacity: 1; /* شفافیت کامل */
 }
 
+/* تغییر آیکون برای حالت تکرار تک آهنگ */
 .repeat.repeat-one i::before {
-  content: "\f021";
+  content: "\f021"; /* آیکون FontAwesome برای تکرار */
 }
 
+/* استایل دکمه تکرار همه */
 .repeat.repeat-all {
-  background: #00ddeb;
-  color: #ffffff;
-  opacity: 1;
+  background: #00ddeb; /* رنگ برجسته */
+  color: #ffffff; /* رنگ متن */
+  opacity: 1; /* شفافیت کامل */
 }
 
+/* تغییر آیکون برای حالت تکرار همه */
 .repeat.repeat-all i::before {
-  content: "\f01e";
+  content: "\f01e"; /* آیکون FontAwesome برای تکرار همه */
 }
 
+/* افکت هاور برای دکمه تکرار */
 .repeat:hover {
-  transform: scale(1.1);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transform: scale(1.1); /* بزرگ‌نمایی */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); /* سایه */
 }
 
+/* استایل بخش‌های ولوم و زمان */
 .volume,
 .time {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  display: flex; /* چیدمان فلکس */
+  align-items: center; /* تراز عمودی وسط */
+  gap: 10px; /* فاصله بین عناصر */
 }
 
+/* استایل ورودی رنج (اسلایدر) */
 input[type="range"] {
-  -webkit-appearance: none;
-  appearance: none;
-  height: 6px;
-  background: var(--secondary-color);
-  border-radius: var(--radius);
-  outline: none;
-  transition: background 0.3s ease;
-  width: 100%;
+  -webkit-appearance: none; /* حذف استایل پیش‌فرض مرورگر */
+  appearance: none; /* حذف استایل پیش‌فرض */
+  height: 6px; /* ارتفاع اسلایدر */
+  background: var(--secondary-color); /* پس‌زمینه */
+  border-radius: var(--radius); /* گوشه‌های گرد */
+  outline: none; /* حذف حاشیه فوکوس */
+  transition: background 0.3s ease; /* انیمیشن تغییر رنگ */
+  width: 100%; /* عرض کامل */
 }
 
+/* استایل دسته اسلایدر در مرورگرهای Webkit */
 input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 16px;
-  height: 16px;
-  background: var(--accent-color);
-  border-radius: 50%;
-  cursor: pointer;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  -webkit-appearance: none; /* حذف استایل پیش‌فرض */
+  width: 16px; /* عرض دسته */
+  height: 16px; /* ارتفاع دسته */
+  background: var(--accent-color); /* رنگ دسته */
+  border-radius: 50%; /* شکل دایره‌ای */
+  cursor: pointer; /* نشانگر ماوس */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* سایه */
 }
 
+/* افکت هاور برای اسلایدر */
 input[type="range"]:hover {
-  background: var(--accent-color);
+  background: var(--accent-color); /* تغییر رنگ پس‌زمینه */
 }
 
+/* استایل لیست پلی‌لیست */
 .playlist {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+  list-style: none; /* حذف استایل لیست */
+  padding: 0; /* حذف فاصله‌گذاری داخلی */
+  margin: 0; /* حذف حاشیه */
 }
 
+/* استایل آیتم‌های پلی‌لیست */
 .playlist_item {
-  background: var(--item-bg);
-  padding: 12px;
-  margin-bottom: 8px;
-  border-radius: var(--radius);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  cursor: pointer;
-  transition: background 0.3s ease, transform 0.2s ease;
-  gap: 10px;
+  background: var(--item-bg); /* پس‌زمینه */
+  padding: 12px; /* فاصله‌گذاری داخلی */
+  margin-bottom: 8px; /* فاصله زیرین */
+  border-radius: var(--radius); /* گوشه‌های گرد */
+  display: flex; /* چیدمان فلکس */
+  justify-content: space-between; /* توزیع فضا */
+  align-items: center; /* تراز عمودی وسط */
+  cursor: pointer; /* نشانگر ماوس */
+  transition: background 0.3s ease, transform 0.2s ease; /* انیمیشن تغییر رنگ و مقیاس */
+  gap: 10px; /* فاصله بین عناصر */
 }
 
+/* استایل عنوان آهنگ در آیتم پلی‌لیست */
 .playlist_item .song-title {
-  flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  flex: 1; /* اشغال فضای موجود */
+  white-space: nowrap; /* جلوگیری از شکست خط */
+  overflow: hidden; /* مخفی کردن محتوای اضافی */
+  text-overflow: ellipsis; /* نمایش سه‌نقطه */
 }
 
+/* افکت هاور برای آیتم‌های پلی‌لیست */
 .playlist_item:hover {
-  background: var(--secondary-color);
-  transform: translateX(5px);
+  background: var(--secondary-color); /* تغییر رنگ پس‌زمینه */
+  transform: translateX(5px); /* جابجایی افقی */
 }
 
+/* استایل آیتم در حال پخش */
 .playlist_item.playing {
   background: linear-gradient(
     to right,
     var(--playing-bg-start),
     var(--playing-bg-end)
-  );
+  ); /* گرادیان برای آیتم در حال پخش */
 }
 
+/* استایل لینک دانلود آهنگ */
 .download-song {
-  color: var(--accent-color);
-  text-decoration: none;
-  transition: color 0.3s ease;
-  flex-shrink: 0;
+  color: var(--accent-color); /* رنگ لینک */
+  text-decoration: none; /* حذف زیرخط */
+  transition: color 0.3s ease; /* انیمیشن تغییر رنگ */
+  flex-shrink: 0; /* جلوگیری از کوچک شدن */
 }
 
+/* افکت هاور برای لینک دانلود */
 .download-song:hover {
-  color: var(--sub-accent);
+  color: var(--sub-accent); /* تغییر رنگ */
 }
 
+/* استایل آرشیو پلی‌لیست */
 .playlist-archive {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 200px));
-  gap: 15px;
-  padding: var(--padding);
-  overflow-y: auto;
-  overflow-x: hidden;
-  flex: 1;
-  width: 100%;
-  max-width: 100%;
-  margin: 0 auto;
-  box-sizing: border-box;
-  justify-content: center;
+  display: grid; /* چیدمان گرید */
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(200px, 200px)
+  ); /* ستون‌های خودکار */
+  gap: 15px; /* فاصله بین کارت‌ها */
+  padding: var(--padding); /* فاصله‌گذاری داخلی */
+  overflow-y: auto; /* اسکرول عمودی */
+  overflow-x: hidden; /* جلوگیری از اسکرول افقی */
+  flex: 1; /* اشغال فضای موجود */
+  width: 100%; /* عرض کامل */
+  max-width: 100%; /* حداکثر عرض */
+  margin: 0 auto; /* تراز وسط */
+  box-sizing: border-box; /* شامل حاشیه و پدینگ در ابعاد */
+  justify-content: center; /* تراز افقی وسط */
 }
 
+/* استایل کارت‌های پلی‌لیست */
 .playlist-card {
-  background: var(--item-bg);
-  border-radius: var(--radius);
-  padding: 10px;
-  text-align: center;
-  color: var(--text-color);
-  text-decoration: none;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  display: block;
-  height: 220px;
-  overflow: hidden;
+  background: var(--item-bg); /* پس‌زمینه */
+  border-radius: var(--radius); /* گوشه‌های گرد */
+  padding: 10px; /* فاصله‌گذاری داخلی */
+  text-align: center; /* تراز متن وسط */
+  color: var(--text-color); /* رنگ متن */
+  text-decoration: none; /* حذف زیرخط */
+  transition: transform 0.3s ease, box-shadow 0.3s ease; /* انیمیشن تغییر مقیاس و سایه */
+  display: block; /* نمایش به‌صورت بلوک */
+  height: 220px; /* ارتفاع ثابت */
+  overflow: hidden; /* مخفی کردن محتوای اضافی */
 }
 
+/* افکت هاور برای کارت‌های پلی‌لیست */
 .playlist-card:hover {
-  transform: scale(1.05);
-  box-shadow: var(--shadow);
+  transform: scale(1.05); /* بزرگ‌نمایی */
+  box-shadow: var(--shadow); /* سایه */
 }
 
-.playlist-card {
-  color: var(--text-color);
-  text-decoration: none;
-}
-
+/* استایل کاور پلی‌لیست */
 .playlist-cover {
-  width: 100%;
-  height: 140px;
-  object-fit: cover;
-  border-radius: var(--radius);
+  width: 100%; /* عرض کامل */
+  height: 140px; /* ارتفاع ثابت */
+  object-fit: cover; /* پر کردن کادر بدون اعوجاج */
+  border-radius: var(--radius); /* گوشه‌های گرد */
 }
 
+/* استایل عنوان پلی‌لیست */
 .playlist-title {
-  font-size: 18px;
-  margin: 8px 0 4px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 18px; /* اندازه فونت */
+  margin: 8px 0 4px; /* حاشیه بالا و پایین */
+  white-space: nowrap; /* جلوگیری از شکست خط */
+  overflow: hidden; /* مخفی کردن محتوای اضافی */
+  text-overflow: ellipsis; /* نمایش سه‌نقطه */
 }
 
+/* استایل تعداد آهنگ‌ها */
 .song-count {
-  font-size: 12px;
-  opacity: 0.8;
+  font-size: 12px; /* اندازه فونت */
+  opacity: 0.8; /* شفافیت */
 }
 
+/* استایل‌های پاسخ‌گو برای صفحه‌نمایش‌های کوچک‌تر */
 @media (max-width: 768px) {
+  /* استایل سایدبار در حالت موبایل */
   .sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 250px;
-    transform: translateX(-100%);
-    z-index: 20;
-    overflow-y: auto;
-    overflow-x: hidden;
+    position: fixed; /* موقعیت ثابت */
+    top: 0; /* بالای صفحه */
+    left: 0; /* سمت چپ */
+    height: 100%; /* ارتفاع کامل */
+    width: 250px; /* عرض کاهش‌یافته */
+    transform: translateX(-100%); /* مخفی در حالت پیش‌فرض */
+    z-index: 20; /* اولویت نمایش */
+    overflow-y: auto; /* اسکرول عمودی */
+    overflow-x: hidden; /* جلوگیری از اسکرول افقی */
   }
 
+  /* نمایش سایدبار در حالت فعال */
   .sidebar.active {
-    transform: translateX(0);
+    transform: translateX(0); /* نمایش کامل */
   }
 
+  /* نمایش دکمه تغییر وضعیت سایدبار */
   .sidebar-toggle {
-    display: block;
+    display: block; /* نمایش در موبایل */
   }
 
+  /* استایل محتوای اصلی در موبایل */
   .main-content {
-    padding: 10px;
-    overflow: hidden;
+    padding: 10px; /* فاصله‌گذاری داخلی کمتر */
+    overflow: hidden; /* جلوگیری از اسکرول */
   }
 
+  /* استایل بخش در حال پخش در موبایل */
   .now-playing {
-    max-height: 50vh;
-    overflow: hidden;
+    max-height: 50vh; /* کاهش حداکثر ارتفاع */
+    overflow: hidden; /* جلوگیری از اسکرول */
   }
 
+  /* استایل تصویر کاور در موبایل */
   .cover-art {
-    width: 250px;
-    height: 250px;
+    width: 250px; /* عرض کاهش‌یافته */
+    height: 250px; /* ارتفاع کاهش‌یافته */
   }
 
+  /* استایل اطلاعات آهنگ در موبایل */
   .song-info {
-    max-height: 25vh;
-    overflow: hidden;
+    max-height: 25vh; /* حداکثر ارتفاع */
+    overflow: hidden; /* جلوگیری از اسکرول */
   }
 
+  /* استایل عنوان آهنگ در موبایل */
   .song-info .song-title {
-    font-size: 20px;
-    line-height: 1.2;
+    font-size: 20px; /* اندازه فونت کوچکتر */
+    line-height: 1.2; /* ارتفاع خط */
   }
 
+  /* استایل نام هنرمند در موبایل */
   .song-info .song-artist {
-    font-size: 16px;
-    line-height: 1.2;
+    font-size: 16px; /* اندازه فونت کوچکتر */
+    line-height: 1.2; /* ارتفاع خط */
   }
 
+  /* مخفی کردن نام آلبوم در موبایل */
   .song-info .song-album {
-    display: none;
+    display: none; /* مخفی */
   }
 
+  /* استایل توضیح کوتاه آهنگ در موبایل */
   .song-info .song-excerpt {
-    font-size: 14px;
-    margin-top: 5px;
-    display: -webkit-box;
-    -webkit-line-clamp: 1;
-    -webkit-box-orient: vertical;
-    display: box;
-    line-clamp: 1;
-    box-orient: vertical;
-    line-height: 1.2;
+    font-size: 14px; /* اندازه فونت کوچکتر */
+    margin-top: 5px; /* فاصله از بالا */
+    display: -webkit-box; /* پشتیبانی از چند خط */
+    -webkit-line-clamp: 1; /* محدود به یک خط */
+    -webkit-box-orient: vertical; /* جهت عمودی */
+    display: box; /* برای مرورگرهای قدیمی */
+    line-clamp: 1; /* محدود به یک خط */
+    box-orient: vertical; /* جهت عمودی */
+    line-height: 1.2; /* ارتفاع خط */
   }
 
+  /* مخفی کردن توضیحات آهنگ در موبایل */
   .song-info .song-description {
-    display: none;
+    display: none; /* مخفی */
   }
 
+  /* استایل موقعیت آهنگ در موبایل */
   .song-info .song-position {
-    font-size: 14px;
-    margin-top: 5px;
-    line-height: 1.2;
+    font-size: 14px; /* اندازه فونت کوچکتر */
+    margin-top: 5px; /* فاصله از بالا */
+    line-height: 1.2; /* ارتفاع خط */
   }
 
+  /* استایل کنترل‌های پخش‌کننده در موبایل */
   .player-controls {
-    max-width: 100%;
-    padding: 8px;
+    max-width: 100%; /* عرض کامل */
+    padding: 8px; /* فاصله‌گذاری داخلی کمتر */
   }
 
+  /* استایل دکمه‌های کنترل در موبایل */
   .control-buttons {
-    gap: 10px;
+    gap: 10px; /* فاصله کمتر بین دکمه‌ها */
   }
 
+  /* استایل دکمه‌های پخش‌کننده در موبایل */
   .player-controls button {
-    padding: 10px;
-    font-size: 16px;
+    padding: 10px; /* فاصله‌گذاری داخلی کمتر */
+    font-size: 16px; /* اندازه فونت کوچکتر */
   }
 
+  /* استایل کانتینر رنج در موبایل */
   .range-container {
-    gap: 10px;
+    gap: 10px; /* فاصله کمتر */
   }
 
+  /* استایل هدر در موبایل */
   .app-header {
-    padding: 10px;
+    padding: 10px; /* فاصله‌گذاری داخلی کمتر */
   }
 
+  /* استایل عنوان برنامه در موبایل */
   .app-title {
-    font-size: 20px;
+    font-size: 20px; /* اندازه فونت کوچکتر */
   }
 
+  /* استایل دکمه بازگشت در موبایل */
   .back-to-archive {
-    padding: 6px 12px;
-    font-size: 14px;
+    padding: 6px 12px; /* فاصله‌گذاری داخلی کمتر */
+    font-size: 14px; /* اندازه فونت کوچکتر */
   }
 
+  /* استایل آرشیو پلی‌لیست در موبایل */
   .playlist-archive {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 150px));
-    gap: 10px;
-    padding: 10px;
-    overflow-y: auto;
-    overflow-x: hidden;
+    grid-template-columns: repeat(
+      auto-fit,
+      minmax(150px, 150px)
+    ); /* ستون‌های کوچکتر */
+    gap: 10px; /* فاصله کمتر */
+    padding: 10px; /* فاصله‌گذاری داخلی کمتر */
+    overflow-y: auto; /* اسکرول عمودی */
+    overflow-x: hidden; /* جلوگیری از اسکرول افقی */
   }
 
+  /* استایل کارت‌های پلی‌لیست در موبایل */
   .playlist-card {
-    height: 200px;
+    height: 200px; /* ارتفاع کوچکتر */
   }
 
+  /* استایل کاور پلی‌لیست در موبایل */
   .playlist-cover {
-    height: 120px;
+    height: 120px; /* ارتفاع کوچکتر */
   }
 
+  /* استایل عنوان پلی‌لیست در موبایل */
   .playlist-title {
-    font-size: 16px;
-    margin: 6px 0 3px;
+    font-size: 16px; /* اندازه فونت کوچکتر */
+    margin: 6px 0 3px; /* حاشیه کمتر */
   }
 
+  /* استایل تعداد آهنگ‌ها در موبایل */
   .song-count {
-    font-size: 10px;
+    font-size: 10px; /* اندازه فونت کوچکتر */
   }
 
+  /* استایل دکمه‌های عقب و جلو در موبایل */
   .control-buttons .rewind,
   .control-buttons .fast-forward {
-    background: none;
-    border: none;
-    color: #fff;
-    font-size: 1.2em;
-    cursor: pointer;
-    padding: 0 10px;
+    background: none; /* بدون پس‌زمینه */
+    border: none; /* بدون حاشیه */
+    color: #fff; /* رنگ سفید */
+    font-size: 1.2em; /* اندازه فونت */
+    cursor: pointer; /* نشانگر ماوس */
+    padding: 0 10px; /* فاصله‌گذاری افقی */
   }
 
+  /* افکت هاور برای دکمه‌های عقب و جلو */
   .control-buttons .rewind:hover,
   .control-buttons .fast-forward:hover {
-    color: #1db954; /* رنگ دلخواه برای hover */
+    color: #1db954; /* رنگ سبز هنگام هاور */
   }
+
+  /* استایل wrapper آیکون */
   .icon-wrapper {
-    position: relative;
-    display: inline-block;
-    font-size: 20px;
+    position: relative; /* موقعیت نسبی */
+    display: inline-block; /* نمایش به‌صورت خطی */
+    font-size: 20px; /* اندازه فونت */
   }
 
+  /* استایل لایه شماره روی آیکون */
   .number-overlay {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 10px;
-    color: #fff;
-    font-weight: bold;
+    position: absolute; /* موقعیت مطلق */
+    top: 50%; /* وسط عمودی */
+    left: 50%; /* وسط افقی */
+    transform: translate(-50%, -50%); /* تراز وسط */
+    font-size: 10px; /* اندازه فونت */
+    color: #fff; /* رنگ سفید */
+    font-weight: bold; /* وزن فونت */
   }
 
-  /* انیمیشن برای دکمه fast-forward (چرخش به راست) */
+  /* انیمیشن برای دکمه fast-forward */
   .fast-forward .fa-redo {
-    color: #1db954; /* سبز */
-    animation: spin-forward 2s linear infinite;
+    color: #1db954; /* رنگ سبز */
+    animation: spin-forward 2s linear infinite; /* انیمیشن چرخش به راست */
   }
 
-  /* انیمیشن برای دکمه rewind (چرخش به چپ) */
+  /* انیمیشن برای دکمه rewind */
   .rewind .fa-redo {
-    color: #ff4444; /* قرمز */
-    animation: spin-backward 2s linear infinite;
+    color: #ff4444; /* رنگ قرمز */
+    animation: spin-backward 2s linear infinite; /* انیمیشن چرخش به چپ */
   }
 
-  /* انیمیشن چرخش به راست */
+  /* تعریف انیمیشن چرخش به راست */
   @keyframes spin-forward {
     0% {
-      transform: rotate(0deg);
+      transform: rotate(0deg); /* شروع از صفر درجه */
     }
     100% {
-      transform: rotate(360deg);
+      transform: rotate(360deg); /* چرخش کامل */
     }
   }
 
-  /* انیمیشن چرخش به چپ */
+  /* تعریف انیمیشن چرخش به چپ */
   @keyframes spin-backward {
     0% {
-      transform: rotate(360deg);
+      transform: rotate(360deg); /* شروع از 360 درجه */
     }
     100% {
-      transform: rotate(0deg);
+      transform: rotate(0deg); /* چرخش کامل به عقب */
     }
   }
 }

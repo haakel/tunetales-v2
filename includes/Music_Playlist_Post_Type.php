@@ -2,6 +2,7 @@
 namespace TuneTales_Music;
 
 class Music_Playlist_Post_Type {
+    const POST_TYPE = 'playlist';
     public function create_playlist_post_type() {
         register_post_type('playlist', [
             // 'labels' => [
@@ -38,5 +39,17 @@ class Music_Playlist_Post_Type {
 
     public function enable_thumbnail_for_attachments() {
         add_post_type_support('attachment', 'thumbnail');
+    }
+    public function create_all_songs_post() {
+        $post_id = get_page_by_path('all-songs', OBJECT, self::POST_TYPE);
+        if (!$post_id) {
+            $post_id = wp_insert_post([
+                'post_title' => __('All Songs', 'music-playlist'),
+                'post_name' => 'all-songs',
+                'post_type' => self::POST_TYPE,
+                'post_status' => 'publish',
+            ]);
+            update_post_meta($post_id, '_is_all_songs_playlist', true);
+        }
     }
 }
