@@ -348,10 +348,11 @@ function create_playlist_post_type() {
             wp_enqueue_style('playlist-custom-style', plugin_dir_url(__FILE__) . 'playlist-style.css', [], '1.0');
             wp_enqueue_script('playlist-custom-script', plugin_dir_url(__FILE__) . 'playlist-script.js', ['jquery'], '1.0', true);
             wp_enqueue_style('font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css');
-            wp_localize_script('playlist-custom-script', 'tunetales_vars', [
-                'archive_url' => get_post_type_archive_link(self::POST_TYPE),
+            wp_localize_script('playlist-script', 'tunetales_vars', [
                 'ajaxurl' => admin_url('admin-ajax.php'),
-                'plugin_url' => plugin_dir_url(__FILE__),
+                'nonce' => wp_create_nonce('playlist-nonce'),
+                'plugin_url' => plugin_dir_url(dirname(__FILE__)),
+                'archive_url' => get_post_type_archive_link('playlist'),
             ]);
         }
     }

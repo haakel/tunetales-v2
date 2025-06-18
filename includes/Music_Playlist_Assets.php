@@ -89,13 +89,13 @@ class Music_Playlist_Assets {
                 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css'
             );
 
-            // ارسال داده‌ها به اسکریپت جاوااسکریپت
-            wp_localize_script('playlist-custom-script', 'tunetales_vars', [
-                'archive_url' => get_post_type_archive_link('playlist'), // URL آرشیو پلی‌لیست
-                'ajaxurl' => admin_url('admin-ajax.php'), // URL برای درخواست‌های AJAX
-                'plugin_url' => plugin_dir_url(__FILE__), // مسیر پلاگین
-                'nonce' => wp_create_nonce('playlist_admin_ajax_nonce'), // نانس امنیتی
-            ]);
+        // ارسال داده‌ها به اسکریپت جاوااسکریپت
+        wp_localize_script('playlist-custom-script', 'tunetales_vars', [
+            'ajaxurl' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('playlist-nonce'),
+            'plugin_url' => plugin_dir_url(dirname(__FILE__)),
+            'archive_url' => get_post_type_archive_link('playlist'),
+        ]);
         }
     }
 

@@ -20,6 +20,7 @@ require_once __DIR__ . '/includes/Music_Playlist_AJAX.php'; // فایل مدیر
 require_once __DIR__ . '/includes/Music_Playlist_Assets.php'; // فایل مدیریت اسکریپت‌ها و استایل‌ها
 require_once __DIR__ . '/includes/Music_Playlist_Template.php'; // فایل مدیریت قالب‌های سفارشی
 require_once __DIR__ . '/includes/Music_Playlist_Utils.php'; // فایل ابزارهای کمکی
+require_once __DIR__ . '/includes/Music_Playlist_Database.php'; // فایل ابزارهای کمکی
 
 // تعریف کلاس اصلی پلاگین
 class Music_Playlist_Main {
@@ -27,7 +28,7 @@ class Music_Playlist_Main {
     private static $instance;
     
     // متغیرهای خصوصی برای نگهداری نمونه‌های کلاس‌های مختلف
-    private $post_type, $metabox, $saver, $ajax, $assets, $template, $utils;
+    private $post_type, $metabox, $saver, $ajax, $assets, $template, $utils,$database;
 
     // متد استاتیک برای دریافت نمونه یکتا از کلاس (الگوی Singleton)
     public static function get_instance() {
@@ -48,6 +49,8 @@ class Music_Playlist_Main {
         $this->assets = new Music_Playlist_Assets(); // مدیریت اسکریپت‌ها و استایل‌ها
         $this->template = new Music_Playlist_Template(); // مدیریت قالب‌های سفارشی
         $this->utils = new Music_Playlist_Utils(); // ابزارهای کمکی
+        $this->database = new Music_Playlist_Database(); // ابزارهای کمکی
+
         // ثبت هوک‌های وردپرس
         $this->register_hooks();
     }
@@ -58,6 +61,7 @@ class Music_Playlist_Main {
         add_action('init', [$this->post_type, 'create_playlist_post_type']); // ایجاد پست‌تایپ پلی‌لیست
         add_action('init', [$this->post_type, 'enable_thumbnail_for_attachments']); // فعال‌سازی تصویر شاخص برای پیوست‌ها
         add_action('init', [$this->post_type, 'create_all_songs_post']); // ایجاد پست پیش‌فرض برای همه آهنگ‌ها
+        add_action('init', [$this->database, 'activate']); // ایجاد پست پیش‌فرض برای همه آهنگ‌ها
         add_action('add_meta_boxes', [$this->metabox, 'playlist_meta_box']); // افزودن متاباکس به صفحه ویرایش پلی‌لیست
         add_action('save_post_playlist', [$this->saver, 'save_playlist_songs']); // ذخیره داده‌های پلی‌لیست هنگام ذخیره پست
         // ثبت هوک‌های AJAX برای مدیریت درخواست‌های ناهمزمان

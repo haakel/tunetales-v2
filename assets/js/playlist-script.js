@@ -1,474 +1,742 @@
-// تعریف کلاس MusicPlayer برای مدیریت پخش‌کننده موسیقی
+/**
+ * کلاس MusicPlayer برای مدیریت پخش‌کننده موسیقی TuneTales
+ */
 class MusicPlayer {
-  // سازنده کلاس
+  /**
+   * سازنده کلاس، برای مقداردهی اولیه متغیرها و راه‌اندازی پخش‌کننده
+   */
   constructor() {
-    this.audio = new Audio(); // ایجاد نمونه از شیء Audio برای پخش فایل‌های صوتی
-    this.songs = []; // آرایه‌ای برای ذخیره URL آهنگ‌ها
+    this.audio = new Audio(); // ایجاد نمونه‌ای از شیء Audio برای پخش موسیقی
+    this.songs = []; // آرایه برای ذخیره لیست آهنگ‌ها
     this.currentSongIndex = 0; // شاخص آهنگ فعلی
     this.isPlaying = false; // وضعیت پخش (در حال پخش یا متوقف)
-    this.isDragging = false; // وضعیت درگ کردن اسلایدر زمان
-    this.isShuffle = false; // وضعیت حالت شافل
-    this.repeatMode = 0; // حالت تکرار (0: خاموش، 1: تکرار تک، 2: تکرار همه)
+    this.isDragging = false; // وضعیت درگ کردن نوار پخش
+    this.isShuffle = false; // وضعیت حالت تصادفی
+    this.repeatMode = 0; // حالت تکرار (0: خاموش، 1: تکرار تک آهنگ، 2: تکرار همه)
 
     this.initElements(); // مقداردهی اولیه عناصر DOM
     this.loadSongs(); // بارگذاری لیست آهنگ‌ها
     this.bindEvents(); // اتصال رویدادها به عناصر
   }
 
-  // متد برای مقداردهی اولیه عناصر DOM
+  /**
+   * مقداردهی اولیه عناصر DOM با استفاده از jQuery
+   */
   initElements() {
-    this.$rewindBtn = jQuery(".rewind"); // دکمه عقب 15 ثانیه
+    this.$rewindBtn = jQuery(".rewind"); // دکمه عقب‌گرد 15 ثانیه
     this.$fastForwardBtn = jQuery(".fast-forward"); // دکمه جلو 15 ثانیه
     this.$playPauseBtn = jQuery(".play-pause"); // دکمه پخش/توقف
     this.$nextBtn = jQuery(".next"); // دکمه آهنگ بعدی
     this.$prevBtn = jQuery(".prev"); // دکمه آهنگ قبلی
-    this.$shuffleBtn = jQuery(".shuffle"); // دکمه شافل
+    this.$shuffleBtn = jQuery(".shuffle"); // دکمه حالت تصادفی
     this.$repeatBtn = jQuery(".repeat"); // دکمه تکرار
     this.$backBtn = jQuery(".back-to-archive"); // دکمه بازگشت به آرشیو
-    this.$volumeSlider = jQuery(".volume-slider"); // اسلایدر تنظیم صدا
-    this.$seekbar = jQuery(".seekbar"); // اسلایدر پیشرفت آهنگ
+    this.$volumeSlider = jQuery(".volume-slider"); // اسلایدر ولوم
+    this.$seekbar = jQuery(".seekbar"); // نوار پخش
     this.$playlistItems = jQuery(".playlist_item"); // آیتم‌های پلی‌لیست
     this.$coverArt = jQuery(".cover-art"); // تصویر کاور آهنگ
     this.$songTitle = jQuery(".song-info .song-title"); // عنوان آهنگ
     this.$songArtist = jQuery(".song-info .song-artist"); // نام هنرمند
     this.$songAlbum = jQuery(".song-info .song-album"); // نام آلبوم
-    this.$songExcerpt = jQuery(".song-info .song-excerpt"); // خلاصه آهنگ
-    this.$songDescription = jQuery(".song-info .song-description"); // توضیحات آهنگ
-    this.$songPosition = jQuery(".song-info .song-position"); // موقعیت آهنگ در پلی‌لیست
-    this.$sidebarToggle = jQuery(".sidebar-toggle"); // دکمه تغییر وضعیت سایدبار
-    this.$sidebar = jQuery(".sidebar"); // سایدبار
+    this.$songExcerpt = jQuery(".song-info .song-excerpt"); // توضیح کوتاه
+    this.$songDescription = jQuery(".song-info .song-description"); // توضیحات
+    this.$songPosition = jQuery(".song-info .song-position"); // موقعیت آهنگ
+    this.$currentTime = jQuery(".current-time"); // زمان فعلی آهنگ
+    this.$durationTime = jQuery(".duration-time"); // زمان کل آهنگ
+    this.$volumeDisplay = jQuery(".volume-display"); // نمایش درصد ولوم
+    this.$sidebarToggle = jQuery(".sidebar-toggle"); // دکمه تغییر وضعیت سایدبار (قبلی)
+    this.$playlistToggle = jQuery(".playlist-toggle"); // دکمه جدید تغییر وضعیت پلی‌لیست
+    this.$sidebar = jQuery(".sidebar"); // سایدبار پلی‌لیست
   }
 
-  // متد برای اتصال رویدادها به عناصر
+  /**
+   * اتصال رویدادها به عناصر DOM
+   */
   bindEvents() {
-    // رویداد کلیک برای دکمه عقب 15 ثانیه
-    this.$rewindBtn.on("click", () => this.rewind15Seconds());
+    // رویداد کلیک برای دکمه عقب‌گرد 15 ثانیه
+    if (this.$rewindBtn?.length) {
+      this.$rewindBtn.on("click", () => {
+        this.rewind15Seconds();
+      });
+    }
+
     // رویداد کلیک برای دکمه جلو 15 ثانیه
-    this.$fastForwardBtn.on("click", () => this.fastForward15Seconds());
+    if (this.$fastForwardBtn?.length) {
+      this.$fastForwardBtn.on("click", () => {
+        this.fastForward15Seconds();
+      });
+    }
+
     // رویداد کلیک برای دکمه پخش/توقف
-    this.$playPauseBtn.on("click", () => this.togglePlayPause());
+    if (this.$playPauseBtn?.length) {
+      this.$playPauseBtn.on("click", () => {
+        this.togglePlayPause();
+      });
+    }
+
     // رویداد کلیک برای دکمه آهنگ بعدی
-    this.$nextBtn.on("click", () => this.nextSong());
+    if (this.$nextBtn?.length) {
+      this.$nextBtn.on("click", () => {
+        this.nextSong();
+      });
+    }
+
     // رویداد کلیک برای دکمه آهنگ قبلی
-    this.$prevBtn.on("click", () => this.prevSong());
-    // رویداد کلیک برای دکمه شافل
-    this.$shuffleBtn.on("click", () => this.toggleShuffle());
+    if (this.$prevBtn?.length) {
+      this.$prevBtn.on("click", () => {
+        this.prevSong();
+      });
+    }
+
+    // رویداد کلیک برای دکمه حالت تصادفی
+    if (this.$shuffleBtn?.length) {
+      this.$shuffleBtn.on("click", () => {
+        this.toggleShuffle();
+      });
+    }
+
     // رویداد کلیک برای دکمه تکرار
-    this.$repeatBtn.on("click", () => this.toggleRepeat());
+    if (this.$repeatBtn?.length) {
+      this.$repeatBtn.on("click", () => {
+        this.toggleRepeat();
+      });
+    }
+
     // رویداد کلیک برای دکمه بازگشت به آرشیو
-    this.$backBtn.on(
-      "click",
-      () => (window.location.href = tunetales_vars.archive_url) // هدایت به URL آرشیو
-    );
-    // رویداد ورودی برای اسلایدر صدا
-    this.$volumeSlider.on("input", (e) => this.setVolume(e.target.value));
-    // رویداد ورودی برای اسلایدر پیشرفت
-    this.$seekbar.on("input", (e) => this.seek(e.target.value));
-    // رویداد تغییر برای اسلایدر پیشرفت
-    this.$seekbar.on("change", () => {
-      this.isDragging = false; // پایان درگ کردن
-    });
-    // رویداد کلیک برای آیتم‌های پلی‌لیست
-    this.$playlistItems.on("click", (e) => {
-      if (!jQuery(e.target).hasClass("download-song")) {
-        // پخش آهنگ از لیست، اگر روی لینک دانلود کلیک نشده باشد
-        this.playFromList(jQuery(e.currentTarget).index());
-      }
-    });
-    // رویداد کلیک برای دکمه تغییر وضعیت سایدبار
-    this.$sidebarToggle.on("click", (e) => {
-      e.stopPropagation(); // جلوگیری از انتشار رویداد
-      this.toggleSidebar();
-    });
+    if (this.$backBtn?.length) {
+      this.$backBtn.on("click", () => {
+        window.location.href = tunetales_vars?.archive_url || "/";
+      });
+    }
 
-    // رویداد کلیک برای بستن سایدبار در صورت کلیک خارج از آن
-    jQuery(document).on("click", (e) => {
-      if (
-        this.$sidebar.hasClass("active") &&
-        !this.$sidebar.is(e.target) &&
-        this.$sidebar.has(e.target).length === 0 &&
-        !this.$sidebarToggle.is(e.target)
-      ) {
-        this.$sidebar.removeClass("active"); // بستن سایدبار
-      }
-    });
+    // رویداد تغییر برای اسلایدر ولوم
+    if (this.$volumeSlider?.length) {
+      this.$volumeSlider.on("input", (e) => {
+        this.setVolume(e.target.value);
+      });
+    }
 
-    // رویداد keydown برای پشتیبانی از کنترل با کیبورد
+    // رویدادهای نوار پخش
+    if (this.$seekbar?.length) {
+      this.$seekbar.on("input", (e) => {
+        this.seek(e.target.value);
+      });
+      this.$seekbar.on("change", () => {
+        this.isDragging = false;
+      });
+    }
+
+    // رویداد کلیک و کیبورد برای آیتم‌های پلی‌لیست
+    if (this.$playlistItems?.length) {
+      this.$playlistItems.on("click", (e) => {
+        if (!jQuery(e.target).hasClass("download-song")) {
+          this.playFromList(jQuery(e.currentTarget).index());
+        }
+      });
+      this.$playlistItems.on("keydown", (e) => {
+        if (e.code === "Enter") {
+          this.playFromList(jQuery(e.currentTarget).index());
+        }
+      });
+    }
+
+    // رویداد کلیک برای دکمه تغییر وضعیت سایدبار (قبلی)
+    if (this.$sidebarToggle?.length) {
+      this.$sidebarToggle.on("click", (e) => {
+        e.stopPropagation();
+        this.toggleSidebar();
+      });
+    }
+
+    // رویداد کلیک برای دکمه جدید تغییر وضعیت پلی‌لیست
+    if (this.$playlistToggle?.length) {
+      this.$playlistToggle.on("click", (e) => {
+        e.stopPropagation();
+        this.toggleSidebar();
+      });
+    }
+
+    // بستن سایدبار با کلیک خارج از آن
+    if (
+      this.$sidebar?.length &&
+      (this.$sidebarToggle?.length || this.$playlistToggle?.length)
+    ) {
+      jQuery(document).on("click", (e) => {
+        if (
+          this.$sidebar.hasClass("active") &&
+          !this.$sidebar.is(e.target) &&
+          this.$sidebar.has(e.target).length === 0 &&
+          !this.$sidebarToggle.is(e.target) &&
+          !this.$playlistToggle.is(e.target)
+        ) {
+          this.$sidebar.removeClass("active");
+          if (this.$sidebarToggle?.length) {
+            this.$sidebarToggle.attr("aria-expanded", "false");
+          }
+          if (this.$playlistToggle?.length) {
+            this.$playlistToggle.attr("aria-expanded", "false");
+          }
+        }
+      });
+    }
+
+    // رویدادهای کیبورد برای کنترل پخش‌کننده
     jQuery(document).on("keydown", (e) => {
-      // جلوگیری از رفتار پیش‌فرض برای کلیدهای خاص
       if (
-        ["Space", "ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown"].includes(
-          e.code
-        )
+        [
+          "Space",
+          "ArrowRight",
+          "ArrowLeft",
+          "ArrowUp",
+          "ArrowDown",
+          "KeyS",
+          "KeyR",
+          "KeyF",
+          "KeyB",
+        ].includes(e.code)
       ) {
         e.preventDefault();
       }
 
-      // مدیریت کلیدهای کیبورد
       switch (e.code) {
-        case "Space": // پخش/توقف
+        case "Space":
           this.togglePlayPause();
-          this.$playPauseBtn.focus(); // فوکوس روی دکمه
+          if (this.$playPauseBtn?.length) this.$playPauseBtn.focus();
           break;
-        case "ArrowRight": // آهنگ بعدی
+        case "ArrowRight":
           this.nextSong();
-          this.$nextBtn.focus();
+          if (this.$nextBtn?.length) this.$nextBtn.focus();
           break;
-        case "ArrowLeft": // آهنگ قبلی
+        case "ArrowLeft":
           this.prevSong();
-          this.$prevBtn.focus();
+          if (this.$prevBtn?.length) this.$prevBtn.focus();
           break;
-        case "KeyS": // شافل
+        case "KeyS":
           this.toggleShuffle();
-          this.$shuffleBtn.focus();
+          if (this.$shuffleBtn?.length) this.$shuffleBtn.focus();
           break;
-        case "KeyR": // تکرار
+        case "KeyR":
           this.toggleRepeat();
-          this.$repeatBtn.focus();
+          if (this.$repeatBtn?.length) this.$repeatBtn.focus();
           break;
-        case "ArrowUp": // جلو 15 ثانیه
+        case "ArrowUp":
+        case "KeyF":
           this.fastForward15Seconds();
-          this.$fastForwardBtn.focus();
+          if (this.$fastForwardBtn?.length) this.$fastForwardBtn.focus();
           break;
-        case "ArrowDown": // عقب 15 ثانیه
+        case "ArrowDown":
+        case "KeyB":
           this.rewind15Seconds();
-          this.$rewindBtn.focus();
+          if (this.$rewindBtn?.length) this.$rewindBtn.focus();
           break;
-        case "KeyF": // جلو 15 ثانیه
-          this.fastForward15Seconds();
-          this.$fastForwardBtn.focus();
-          break;
-        case "KeyB": // عقب 15 ثانیه
-          this.rewind15Seconds();
-          this.$rewindBtn.focus();
-          break;
-      }
-    });
-
-    // رویداد keydown برای انتخاب آهنگ از لیست با Enter
-    this.$playlistItems.on("keydown", (e) => {
-      if (e.code === "Enter") {
-        this.playFromList(jQuery(e.currentTarget).index()); // پخش آهنگ انتخاب‌شده
       }
     });
 
     // رویدادهای صوتی
-    this.audio.addEventListener("loadedmetadata", () => this.updateMetadata()); // به‌روزرسانی متادیتا
-    this.audio.addEventListener("timeupdate", () => this.updateTime()); // به‌روزرسانی زمان
-    this.audio.addEventListener("ended", () => this.handleSongEnd()); // مدیریت پایان آهنگ
-    this.audio.addEventListener("progress", () => this.updateBuffering()); // به‌روزرسانی بافر
-  }
-
-  // متد برای تغییر وضعیت سایدبار
-  toggleSidebar() {
-    this.$sidebar.toggleClass("active"); // افزودن یا حذف کلاس active
-  }
-
-  // متد برای بارگذاری لیست آهنگ‌ها
-  loadSongs() {
-    this.$playlistItems.each((_, item) => {
-      const src = jQuery(item).data("src"); // دریافت URL آهنگ
-      if (src) this.songs.push(src); // افزودن به آرایه آهنگ‌ها
+    this.audio.addEventListener("loadedmetadata", () => {
+      this.updateMetadata(); // به‌روزرسانی متادیتا هنگام بارگذاری
     });
-    if (this.songs.length > 0) this.updateUI(); // به‌روزرسانی رابط کاربری
+    this.audio.addEventListener("timeupdate", () => {
+      this.updateTime(); // به‌روزرسانی زمان هنگام پخش
+    });
+    this.audio.addEventListener("ended", () => {
+      this.handleSongEnd(); // مدیریت پایان آهنگ
+    });
   }
 
-  // متد برای پخش آهنگ با شاخص مشخص
+  /**
+   * تغییر وضعیت نمایش سایدبار با انیمیشن
+   */
+  toggleSidebar() {
+    if (this.$sidebar?.length) {
+      this.$sidebar.toggleClass("active");
+      const isActive = this.$sidebar.hasClass("active");
+      // به‌روزرسانی ویژگی aria-expanded برای هر دو دکمه
+      if (this.$sidebarToggle?.length) {
+        this.$sidebarToggle.attr("aria-expanded", isActive);
+      }
+      if (this.$playlistToggle?.length) {
+        this.$playlistToggle.attr("aria-expanded", isActive);
+      }
+    }
+  }
+
+  /**
+   * بارگذاری لیست آهنگ‌ها از آیتم‌های پلی‌لیست
+   */
+  loadSongs() {
+    this.songs = [];
+    if (this.$playlistItems?.length) {
+      this.$playlistItems.each((index, item) => {
+        const $item = jQuery(item);
+        const attachmentId = parseInt($item.data("attachment-id"));
+        const songData = $item.data();
+        if (attachmentId && songData.src) {
+          this.songs.push({
+            id: attachmentId,
+            src: songData.src || "",
+            title: songData.title || "Unknown Title",
+            artist: songData.artist || "Unknown Artist",
+            album: songData.album || "Unknown Album",
+            description: songData.description || "",
+            excerpt: songData.excerpt || "",
+          });
+        } else {
+          console.warn("TuneTales: Skipping invalid playlist item:", {
+            index,
+            attachmentId,
+            src: songData.src,
+          });
+        }
+      });
+    }
+    if (this.songs.length > 0) {
+      this.updateUI(); // به‌روزرسانی رابط کاربری پس از بارگذاری آهنگ‌ها
+    } else {
+      console.warn("TuneTales: No songs found in playlist");
+    }
+  }
+
+  /**
+   * پخش آهنگ با شاخص مشخص
+   * @param {number} index - شاخص آهنگ در آرایه songs
+   */
   playSong(index) {
-    if (index < 0 || index >= this.songs.length) return; // بررسی معتبر بودن شاخص
-    this.currentSongIndex = index; // تنظیم شاخص آهنگ فعلی
-    this.audio.src = this.songs[index]; // تنظیم منبع صوتی
-    this.audio.load(); // بارگذاری فایل صوتی
+    if (index < 0 || index >= this.songs.length || !this.songs.length) {
+      console.warn("TuneTales: Invalid song index or no songs", index);
+      return;
+    }
+    this.currentSongIndex = index;
+    const song = this.songs[index];
+    this.audio.src = song.src;
+    this.audio.load();
     this.audio
       .play()
-      .catch((error) => console.error("Error playing audio:", error)); // پخش با مدیریت خطا
-    this.isPlaying = true; // تنظیم وضعیت پخش
-    this.updateUI(); // به‌روزرسانی رابط کاربری
+      .then(() => {
+        this.isPlaying = true;
+        this.updateUI(); // به‌روزرسانی رابط کاربری هنگام پخش
+      })
+      .catch((error) => {
+        console.error("TuneTales: Error playing audio", error);
+      });
   }
 
-  // متد برای توقف آهنگ
+  /**
+   * توقف پخش آهنگ
+   */
   pauseSong() {
-    this.audio.pause(); // توقف پخش
-    this.isPlaying = false; // تنظیم وضعیت توقف
-    this.updateUI(); // به‌روزرسانی رابط کاربری
+    if (this.audio.src) {
+      this.audio.pause();
+      this.isPlaying = false;
+      this.updateUI(); // به‌روزرسانی رابط کاربری هنگام توقف
+    }
   }
 
-  // متد برای تغییر وضعیت پخش/توقف
+  /**
+   * تغییر وضعیت پخش/توقف
+   */
   togglePlayPause() {
+    if (!this.songs.length) {
+      console.warn("TuneTales: No songs to play");
+      return;
+    }
     if (this.isPlaying) {
-      this.pauseSong(); // توقف در صورت پخش
+      this.pauseSong();
     } else {
       if (!this.audio.src) {
-        this.playSong(this.currentSongIndex); // پخش آهنگ اول اگر منبعی وجود ندارد
+        this.playSong(this.currentSongIndex);
       } else {
         this.audio
           .play()
-          .catch((error) => console.error("Error resuming audio:", error)); // ادامه پخش
-        this.isPlaying = true;
+          .then(() => {
+            this.isPlaying = true;
+            this.updateUI();
+          })
+          .catch((error) => {
+            console.error("TuneTales: Error resuming audio", error);
+          });
+      }
+    }
+  }
+
+  /**
+   * پخش آهنگ بعدی
+   */
+  nextSong() {
+    if (!this.songs.length) {
+      console.warn("TuneTales: No songs to play next");
+      return;
+    }
+    if (this.isShuffle) {
+      this.currentSongIndex = this.getRandomIndex();
+    } else {
+      this.currentSongIndex = (this.currentSongIndex + 1) % this.songs.length;
+    }
+    this.playSong(this.currentSongIndex);
+  }
+
+  /**
+   * پخش آهنگ قبلی
+   */
+  prevSong() {
+    if (!this.songs.length) {
+      console.warn("TuneTales: No songs to play previous");
+      return;
+    }
+    if (this.isShuffle) {
+      this.currentSongIndex = this.getRandomIndex();
+    } else {
+      this.currentSongIndex =
+        (this.currentSongIndex - 1 + this.songs.length) % this.songs.length;
+    }
+    this.playSong(this.currentSongIndex);
+  }
+
+  /**
+   * تغییر وضعیت حالت تصادفی
+   */
+  toggleShuffle() {
+    if (this.songs.length <= 1) {
+      console.warn("TuneTales: Shuffle requires more than one song");
+      if (this.$shuffleBtn?.length) this.$shuffleBtn.removeClass("active");
+      return;
+    }
+    this.isShuffle = !this.isShuffle;
+    this.updateUI();
+    if (this.isShuffle && this.isPlaying) {
+      this.nextSong();
+    }
+  }
+
+  /**
+   * تغییر حالت تکرار (خاموش، تک آهنگ، همه)
+   */
+  toggleRepeat() {
+    this.repeatMode = (this.repeatMode + 1) % 3;
+    this.updateUI();
+  }
+
+  /**
+   * مدیریت پایان آهنگ
+   */
+  handleSongEnd() {
+    if (!this.songs.length) return;
+    if (this.repeatMode === 1) {
+      this.audio.currentTime = 0;
+      this.audio.play().catch((error) => {
+        console.error("TuneTales: Error repeating song", error);
+      });
+    } else if (this.repeatMode === 2 || this.isShuffle) {
+      this.nextSong();
+    } else {
+      if (this.currentSongIndex + 1 < this.songs.length) {
+        this.nextSong();
+      } else {
+        this.pauseSong();
+        this.currentSongIndex = 0;
         this.updateUI();
       }
     }
   }
 
-  // متد برای پخش آهنگ بعدی
-  nextSong() {
-    if (this.isShuffle) {
-      this.currentSongIndex = this.getRandomIndex(); // انتخاب تصادفی در حالت شافل
-    } else {
-      this.currentSongIndex = (this.currentSongIndex + 1) % this.songs.length; // آهنگ بعدی
-    }
-    this.playSong(this.currentSongIndex); // پخش آهنگ جدید
-  }
-
-  // متد برای پخش آهنگ قبلی
-  prevSong() {
-    if (this.isShuffle) {
-      this.currentSongIndex = this.getRandomIndex(); // انتخاب تصادفی در حالت شافل
-    } else {
-      this.currentSongIndex =
-        (this.currentSongIndex - 1 + this.songs.length) % this.songs.length; // آهنگ قبلی
-    }
-    this.playSong(this.currentSongIndex); // پخش آهنگ جدید
-  }
-
-  // متد برای تغییر وضعیت شافل
-  toggleShuffle() {
-    if (this.songs.length <= 1) {
-      alert("Shuffle mode requires more than one song."); // هشدار در صورت کمبود آهنگ
-      return;
-    }
-    this.isShuffle = !this.isShuffle; // تغییر وضعیت شافل
-    this.$shuffleBtn.toggleClass("active"); // به‌روزرسانی ظاهر دکمه
-    if (this.isShuffle && this.isPlaying) this.nextSong(); // پخش آهنگ بعدی در حالت شافل
-  }
-
-  // متد برای تغییر حالت تکرار
-  toggleRepeat() {
-    this.repeatMode = (this.repeatMode + 1) % 3; // چرخش بین حالت‌ها (0, 1, 2)
-    this.$repeatBtn.removeClass("active repeat-one repeat-all"); // حذف کلاس‌های قبلی
-    if (this.repeatMode === 1) {
-      this.$repeatBtn.addClass("active repeat-one"); // حالت تکرار تک
-      this.$repeatBtn.attr("title", "Repeat One");
-    } else if (this.repeatMode === 2) {
-      this.$repeatBtn.addClass("active repeat-all"); // حالت تکرار همه
-      this.$repeatBtn.attr("title", "Repeat All");
-    } else {
-      this.$repeatBtn.attr("title", "Repeat Off"); // حالت خاموش
-    }
-  }
-
-  // متد برای مدیریت پایان آهنگ
-  handleSongEnd() {
-    if (this.repeatMode === 1) {
-      this.audio.currentTime = 0; // بازگشت به ابتدا
-      this.audio
-        .play()
-        .catch((error) => console.error("Error repeating song:", error)); // پخش مجدد
-    } else if (this.repeatMode === 2) {
-      this.nextSong(); // پخش آهنگ بعدی
-    } else if (this.isShuffle) {
-      this.nextSong(); // پخش آهنگ تصادفی
-    } else {
-      if (this.currentSongIndex + 1 < this.songs.length) {
-        this.nextSong(); // پخش آهنگ بعدی
-      } else {
-        this.pauseSong(); // توقف پخش
-        this.currentSongIndex = 0; // بازگشت به آهنگ اول
-        this.updateUI(); // به‌روزرسانی رابط کاربری
-      }
-    }
-  }
-
-  // متد برای تنظیم صدا
+  /**
+   * تنظیم ولوم صدا
+   * @param {number} value - مقدار ولوم (0 تا 1)
+   */
   setVolume(value) {
-    this.audio.volume = parseFloat(value); // تنظیم ولوم
-    jQuery(".volume-display").text(Math.round(value * 100)); // نمایش درصد صدا
+    const volume = parseFloat(value);
+    if (isNaN(volume)) return;
+    this.audio.volume = volume;
+    if (this.$volumeDisplay?.length) {
+      this.$volumeDisplay.text(Math.round(volume * 100));
+    }
+    if (this.$volumeSlider?.length) {
+      this.$volumeSlider.css("--value", volume * 100 + "%");
+    }
   }
 
-  // متد برای جابجایی در آهنگ
+  /**
+   * جابجایی به زمان خاصی از آهنگ
+   * @param {number} value - زمان به ثانیه
+   */
   seek(value) {
-    this.isDragging = true; // فعال کردن حالت درگ
-    this.audio.currentTime = value; // تنظیم زمان فعلی
-    jQuery(".current-time").text(this.formatTime(value)); // به‌روزرسانی زمان
+    const time = parseFloat(value);
+    if (isNaN(time)) return;
+    this.isDragging = true;
+    this.audio.currentTime = time;
+    this.updateTime();
   }
 
-  // متد برای پخش آهنگ از لیست
+  /**
+   * پخش آهنگ از لیست پلی‌لیست
+   * @param {number} index - شاخص آهنگ در پلی‌لیست
+   */
   playFromList(index) {
-    this.playSong(index); // پخش آهنگ با شاخص مشخص
+    if (index >= 0 && index < this.songs.length) {
+      this.playSong(index);
+    }
   }
 
-  // متد برای به‌روزرسانی رابط کاربری
+  /**
+   * به‌روزرسانی رابط کاربری
+   */
   updateUI() {
-    // تغییر آیکون دکمه پخش/توقف
-    const iconClass = this.isPlaying ? "fa-pause" : "fa-play";
-    this.$playPauseBtn
-      .find("i")
-      .removeClass("fa-play fa-pause")
-      .addClass(iconClass);
-    // به‌روزرسانی وضعیت آیتم‌های پلی‌لیست
-    this.$playlistItems
-      .removeClass("playing")
-      .eq(this.currentSongIndex)
-      .addClass("playing");
-
-    // دریافت اطلاعات آهنگ از آیتم پلی‌لیست
-    const songData = this.$playlistItems.eq(this.currentSongIndex);
-    const title = songData.data("title") || "Unknown Title"; // عنوان آهنگ
-    const artist = songData.data("artist") || "Unknown Artist"; // نام هنرمند
-    const album = songData.data("album") || "Unknown Album"; // نام آلبوم
-    const excerpt = songData.data("excerpt") || ""; // خلاصه
-    const description = songData.data("description") || ""; // توضیحات
-    this.$songTitle.text(title); // به‌روزرسانی عنوان
-    this.$songArtist.text(artist); // به‌روزرسانی هنرمند
-    this.$songAlbum.text(album); // به‌روزرسانی آلبوم
-    this.$songExcerpt.text(excerpt); // به‌روزرسانی خلاصه
-    this.$songDescription.text(description); // به‌روزرسانی توضیحات
-    // به‌روزرسانی موقعیت آهنگ
-    this.$songPosition.text(
-      `Song ${this.currentSongIndex + 1} of ${this.songs.length}`
-    );
-
-    const src = songData.data("src"); // منبع آهنگ
-    const defaultCover =
-      tunetales_vars.plugin_url + "../assets/image/default-cover.jpg"; // تصویر پیش‌فرض
-    if (!src) {
-      console.error("Song source is empty"); // خطا در صورت خالی بودن منبع
-      this.$coverArt.removeClass("fade"); // حذف انیمیشن
-      this.$coverArt.attr("src", defaultCover); // تنظیم تصویر پیش‌فرض
-      this.$coverArt.addClass("fade"); // افزودن انیمیشن
+    if (!this.songs.length || !this.songs[this.currentSongIndex]) {
+      console.warn("TuneTales: No valid song to update UI");
       return;
     }
 
-    console.log("Sending AJAX request with src:", src); // لاگ درخواست AJAX
+    const song = this.songs[this.currentSongIndex];
 
-    // درخواست AJAX برای دریافت ID پیوست
+    // به‌روزرسانی اطلاعات آهنگ
+    if (this.$songTitle?.length)
+      this.$songTitle.text(song.title || "Unknown Title");
+    if (this.$songArtist?.length)
+      this.$songArtist.text(song.artist || "Unknown Artist");
+    if (this.$songAlbum?.length)
+      this.$songAlbum.text(song.album || "Unknown Album");
+    if (this.$songExcerpt?.length) this.$songExcerpt.text(song.excerpt || "");
+    if (this.$songDescription?.length)
+      this.$songDescription.text(song.description || "");
+
+    // بارگذاری تصویر کاور
+    if (this.$coverArt?.length && song.id) {
+      this.loadCoverArt(song.id);
+    } else {
+      console.warn("TuneTales: No cover art element or invalid attachment ID");
+    }
+
+    // به‌روزرسانی دکمه پخش/توقف
+    if (this.$playPauseBtn?.length) {
+      const playIcon = '<i class="fas fa-play"></i>';
+      const pauseIcon = '<i class="fas fa-pause"></i>';
+      this.$playPauseBtn.html(this.isPlaying ? pauseIcon : playIcon);
+      this.$playPauseBtn.attr("aria-label", this.isPlaying ? "Pause" : "Play");
+    }
+
+    // به‌روزرسانی دکمه حالت تصادفی
+    if (this.$shuffleBtn?.length) {
+      this.$shuffleBtn.toggleClass("active", this.isShuffle);
+      this.$shuffleBtn.attr("aria-pressed", this.isShuffle);
+    }
+
+    // به‌روزرسانی دکمه تکرار
+    if (this.$repeatBtn?.length) {
+      let repeatIcon = '<i class="fas fa-redo"></i>';
+      if (this.repeatMode === 1) {
+        repeatIcon = '<i class="fas fa-redo"></i>';
+        this.$repeatBtn
+          .removeClass("repeat-one repeat-all")
+          .addClass("active repeat-one");
+        this.$repeatBtn.attr("title", "Repeat One");
+      } else if (this.repeatMode === 2) {
+        repeatIcon = '<i class="fas fa-redo"></i>';
+        this.$repeatBtn
+          .removeClass("repeat-one repeat-all")
+          .addClass("active repeat-all");
+        this.$repeatBtn.attr("title", "Repeat All");
+      } else {
+        this.$repeatBtn.removeClass("active repeat-one repeat-all");
+        this.$repeatBtn.attr("title", "Repeat Off");
+      }
+      this.$repeatBtn.html(repeatIcon);
+    }
+
+    // به‌روزرسانی آیتم فعال در پلی‌لیست
+    if (this.$playlistItems?.length) {
+      this.$playlistItems.removeClass("active").attr("aria-selected", "false");
+      this.$playlistItems
+        .eq(this.currentSongIndex)
+        .addClass("active")
+        .attr("aria-selected", "true");
+    }
+
+    // به‌روزرسانی نوار پخش و زمان‌ها
+    if (
+      this.$seekbar?.length &&
+      this.$durationTime?.length &&
+      this.$currentTime?.length
+    ) {
+      if (this.audio.duration && !isNaN(this.audio.duration)) {
+        this.$durationTime.text(this.formatTime(this.audio.duration));
+        this.$seekbar.attr("max", this.audio.duration);
+      } else {
+        this.$durationTime.text("00:00");
+        this.$seekbar.attr("max", 0);
+      }
+      this.$currentTime.text(this.formatTime(this.audio.currentTime));
+      this.$seekbar.val(this.audio.currentTime);
+      this.$seekbar.css(
+        "--value",
+        (this.audio.currentTime / (this.audio.duration || 1)) * 100 + "%"
+      );
+    }
+
+    // به‌روزرسانی ولوم
+    if (this.$volumeSlider?.length && this.$volumeDisplay?.length) {
+      this.$volumeSlider.val(this.audio.volume);
+      this.$volumeDisplay.text(Math.round(this.audio.volume * 100));
+      this.$volumeSlider.css("--value", this.audio.volume * 100 + "%");
+    }
+
+    // به‌روزرسانی موقعیت آهنگ
+    if (this.$songPosition?.length) {
+      this.$songPosition.text(
+        `${this.formatTime(this.audio.currentTime)} / ${this.formatTime(
+          this.audio.duration || 0
+        )}`
+      );
+    }
+  }
+
+  /**
+   * بارگذاری تصویر کاور آهنگ از طریق AJAX
+   * @param {number} attachmentId - شناسه پیوست رسانه
+   */
+  loadCoverArt(attachmentId) {
+    if (!attachmentId || !this.$coverArt?.length) {
+      console.warn("TuneTales: Invalid attachmentId or no coverArt element", {
+        attachmentId,
+      });
+      return;
+    }
+
+    const defaultCover = tunetales_vars?.plugin_url
+      ? `${tunetales_vars.plugin_url}assets/image/default-cover.jpg`
+      : "https://via.placeholder.com/200";
+
+    if (!tunetales_vars?.ajaxurl || !tunetales_vars?.nonce) {
+      console.warn("TuneTales: AJAX URL or nonce missing", {
+        ajaxurl: tunetales_vars?.ajaxurl,
+        nonce: tunetales_vars?.nonce,
+      });
+      this.$coverArt.attr("src", defaultCover);
+      return;
+    }
+
     jQuery.ajax({
-      url: tunetales_vars.ajaxurl, // URL درخواست
+      url: tunetales_vars.ajaxurl,
       method: "POST",
       data: {
-        action: "get_attachment_id", // اکشن وردپرس
-        url: src, // URL آهنگ
-        nonce: tunetales_vars.nonce, // نانس امنیتی
+        action: "get_attachment_url",
+        id: parseInt(attachmentId),
+        size: "medium",
+        nonce: tunetales_vars.nonce,
       },
       success: (response) => {
-        console.log("AJAX response for get_attachment_id:", response); // لاگ پاسخ
-        if (response.success) {
-          const attachmentId = response.data.id || 0; // ID پیوست
-          if (attachmentId) {
-            // درخواست AJAX برای دریافت URL تصویر پیوست
-            jQuery.ajax({
-              url: tunetales_vars.ajaxurl,
-              method: "POST",
-              data: {
-                action: "get_attachment_url", // اکشن وردپرس
-                id: attachmentId, // ID پیوست
-                size: "medium", // اندازه تصویر
-                nonce: tunetales_vars.nonce,
-              },
-              success: (response) => {
-                console.log("AJAX response for get_attachment_url:", response); // لاگ پاسخ
-                if (response.success) {
-                  this.$coverArt.removeClass("fade"); // حذف انیمیشن
-                  this.$coverArt.attr("src", response.data.url || defaultCover); // تنظیم تصویر
-                  this.$coverArt.addClass("fade"); // افزودن انیمیشن
-                } else {
-                  console.error(
-                    "Error fetching attachment URL:",
-                    response.data.message
-                  ); // لاگ خطا
-                  this.$coverArt.removeClass("fade");
-                  this.$coverArt.attr("src", defaultCover);
-                  this.$coverArt.addClass("fade");
-                }
-              },
-              error: (xhr, status, error) => {
-                console.error("Error fetching attachment URL:", status, error); // لاگ خطا
-                this.$coverArt.removeClass("fade");
-                this.$coverArt.attr("src", defaultCover);
-                this.$coverArt.addClass("fade");
-              },
-            });
-          } else {
-            this.$coverArt.removeClass("fade"); // حذف انیمیشن
-            this.$coverArt.attr("src", defaultCover); // تصویر پیش‌فرض
-            this.$coverArt.addClass("fade"); // افزودن انیمیشن
-          }
+        if (response.success && response.data.url) {
+          this.$coverArt.attr("src", response.data.url);
         } else {
-          console.error("Error fetching attachment ID:", response.data.message); // لاگ خطا
-          this.$coverArt.removeClass("fade");
           this.$coverArt.attr("src", defaultCover);
-          this.$coverArt.addClass("fade");
+          console.warn(
+            "TuneTales: Failed to load cover art, using default",
+            response
+          );
         }
       },
       error: (xhr, status, error) => {
-        console.error("Error fetching attachment ID:", status, error); // لاگ خطا
-        this.$coverArt.removeClass("fade");
         this.$coverArt.attr("src", defaultCover);
-        this.$coverArt.addClass("fade");
+        console.error("TuneTales: AJAX error loading cover art", {
+          status,
+          error,
+          xhr,
+        });
       },
     });
   }
 
-  // متد برای به‌روزرسانی متادیتا
+  /**
+   * به‌روزرسانی متادیتا (مانند مدت زمان آهنگ)
+   */
   updateMetadata() {
-    this.$seekbar.attr("max", this.audio.duration); // تنظیم حداکثر اسلایدر
-    jQuery(".duration-time").text(this.formatTime(this.audio.duration)); // نمایش مدت زمان
+    if (
+      this.$seekbar?.length &&
+      this.audio.duration &&
+      !isNaN(this.audio.duration)
+    ) {
+      this.$seekbar.attr("max", this.audio.duration);
+    }
+    if (this.$durationTime?.length) {
+      this.$durationTime.text(this.formatTime(this.audio.duration || 0));
+    }
   }
 
-  // متد برای به‌روزرسانی زمان پخش
+  /**
+   * به‌روزرسانی زمان فعلی و نوار پخش
+   */
   updateTime() {
-    if (!this.isDragging) {
+    if (
+      !this.isDragging &&
+      this.$seekbar?.length &&
+      this.$currentTime?.length
+    ) {
       const progress =
-        (this.audio.currentTime / this.audio.duration) * 100 || 0; // محاسبه پیشرفت
-      this.$seekbar.val(this.audio.currentTime); // تنظیم مقدار اسلایدر
-      this.$seekbar.css("--value", `${progress}%`); // به‌روزرسانی استایل
-      jQuery(".current-time").text(this.formatTime(this.audio.currentTime)); // نمایش زمان فعلی
+        (this.audio.currentTime / (this.audio.duration || 1)) * 100 || 0;
+      this.$seekbar.val(this.audio.currentTime);
+      this.$seekbar.css("--value", `${progress}%`);
+      this.$currentTime.text(this.formatTime(this.audio.currentTime));
     }
   }
 
-  // متد برای به‌روزرسانی وضعیت بافر
-  updateBuffering() {
-    if (this.audio.buffered.length > 0) {
-      const bufferedEnd = this.audio.buffered.end(
-        this.audio.buffered.length - 1
-      ); // پایان بافر
-      const percentage = (bufferedEnd / this.audio.duration) * 100; // درصد بافر
-      jQuery(".buffering-bar").css("width", `${percentage}%`); // به‌روزرسانی نوار بافر
-    }
-  }
-
-  // متد برای دریافت شاخص تصادفی
+  /**
+   * تولید شاخص تصادفی برای حالت Shuffle
+   * @returns {number} - شاخص تصادفی
+   */
   getRandomIndex() {
+    if (this.songs.length <= 1) return 0;
     let nextIndex;
     do {
-      nextIndex = Math.floor(Math.random() * this.songs.length); // شاخص تصادفی
-    } while (nextIndex === this.currentSongIndex); // جلوگیری از تکرار آهنگ فعلی
+      nextIndex = Math.floor(Math.random() * this.songs.length);
+    } while (nextIndex === this.currentSongIndex);
     return nextIndex;
   }
 
-  // متد برای فرمت زمان
+  /**
+   * فرمت کردن زمان به صورت mm:ss
+   * @param {number} seconds - زمان به ثانیه
+   * @returns {string} - زمان فرمت‌شده
+   */
   formatTime(seconds) {
-    const minutes = Math.floor(seconds / 60); // محاسبه دقیقه
-    const secs = Math.floor(seconds % 60); // محاسبه ثانیه
-    return `${minutes < 10 ? "0" : ""}${minutes}:${
-      secs < 10 ? "0" : ""
-    }${secs}`; // فرمت MM:SS
+    if (isNaN(seconds)) return "00:00";
+    const minutes = Math.floor(seconds / 60);
+    seconds = Math.floor(seconds % 60);
+    return `${minutes.toString().padStart(2, "0")}:${seconds
+      .toString()
+      .padStart(2, "0")}`;
   }
 
-  // متد برای عقب بردن 15 ثانیه
+  /**
+   * عقب‌گرد 15 ثانیه‌ای آهنگ
+   */
   rewind15Seconds() {
-    const newTime = Math.max(0, this.audio.currentTime - 15); // کاهش 15 ثانیه
-    this.audio.currentTime = newTime; // تنظیم زمان
-    this.updateTime(); // به‌روزرسانی زمان
+    if (!this.songs.length || !this.audio.src) return;
+    const newTime = Math.max(0, this.audio.currentTime - 15);
+    this.audio.currentTime = newTime;
+    this.updateUI();
   }
 
-  // متد برای جلو بردن 15 ثانیه
+  /**
+   * جلو بردن 15 ثانیه‌ای آهنگ
+   */
   fastForward15Seconds() {
-    const newTime = Math.min(this.audio.duration, this.audio.currentTime + 15); // افزایش 15 ثانیه
-    this.audio.currentTime = newTime; // تنظیم زمان
-    this.updateTime(); // به‌روزرسانی زمان
+    if (!this.songs.length || !this.audio.src) return;
+    const newTime = Math.min(
+      this.audio.duration || 0,
+      this.audio.currentTime + 15
+    );
+    this.audio.currentTime = newTime;
+    this.updateUI();
   }
 }
 
-// ایجاد نمونه از MusicPlayer هنگام آماده شدن DOM
-jQuery(document).ready(() => new MusicPlayer());
+/**
+ * مقداردهی اولیه پخش‌کننده هنگام بارگذاری صفحه
+ */
+jQuery(document).ready(function ($) {
+  if (jQuery(".webapp-player").length) {
+    new MusicPlayer();
+    console.log("TuneTales: MusicPlayer initialized");
+  } else {
+    console.warn("TuneTales: Player container not found");
+  }
+});

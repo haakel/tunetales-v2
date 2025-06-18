@@ -1,124 +1,91 @@
 <?php
-// تعریف فضای نام برای جلوگیری از تداخل با سایر پلاگین‌ها یا قالب‌ها
 namespace TuneTales_Music;
 
-// تعریف کلاس Music_Playlist_Metabox برای مدیریت متاباکس‌های پلی‌لیست
 class Music_Playlist_Metabox {
-    /**
-     * متد برای افزودن متاباکس به پست‌تایپ پلی‌لیست
-     */
     public function playlist_meta_box() {
-        // افزودن متاباکس به پست‌تایپ 'playlist'
-        add_meta_box(
-            'playlist_songs', // شناسه متاباکس
-            __('Playlist Songs', 'music-playlist'), // عنوان متاباکس (ترجمه‌شده)
-            [$this, 'render_meta_box'], // تابع callback برای رندر محتوا
-            'playlist' // پست‌تایپ هدف
-        );
+        add_meta_box('playlist_songs', __('Playlist Songs', 'music-playlist'), [$this, 'render_meta_box'], 'playlist');
     }
 
-    /**
-     * متد برای رندر محتوای متاباکس
-     * 
-     * @param WP_Post $post شیء پست فعلی
-     */
     public function render_meta_box($post) {
-        // افزودن نانس امنیتی برای اعتبارسنجی هنگام ذخیره
         wp_nonce_field('save_playlist_songs', 'playlist_songs_nonce');
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'playlist_songs';
+        $songs = $wpdb->get_results($wpdb->prepare(
+            "SELECT song_id FROM $table_name WHERE playlist_id = %d",
+            $post->ID
+        ));
 
-        // دریافت آهنگ‌های ذخیره‌شده در متادیتای پست
-        $songs = get_post_meta($post->ID, '_playlist_songs', true) ?: [];
+        // لاگ برای دیباگ آهنگ‌های بازیابی‌شده
+        error_log('TuneTales: Retrieved songs for playlist ' . $post->ID . ': ' . print_r($songs, true));
 
-        // دریافت ID پلی‌لیست "همه آهنگ‌ها"
         $all_songs_id = $this->get_all_songs_post_id();
-
-        // دریافت تمام پلی‌لیست‌ها به جز پلی‌لیست "همه آهنگ‌ها"
         $playlists = get_posts([
-            'post_type'   => 'playlist', // نوع پست
-            'numberposts' => -1, // دریافت همه پست‌ها
-            'post_status' => 'publish', // فقط پست‌های منتشرشده
-            'post__not_in' => [$all_songs_id], // حذف پلی‌لیست "همه آهنگ‌ها"
+            'post_type' => 'playlist',
+            'numberposts' => -1,
+            'post_status' => 'publish',
+            'post__not_in' => [$all_songs_id],
         ]);
         ?>
-<!-- wrapper برای آیتم‌های آهنگ -->
 <div id="playlist_songs_wrapper">
-    <?php 
-            // پیمایش آهنگ‌های ذخیره‌شده
-            foreach ($songs as $index => $song) : 
-                // بررسی آرایه بودن داده‌های آهنگ
-                if (is_array($song)) : 
-            ?>
+    <?php if ($songs) : ?>
+    <?php foreach ($songs as $index => $song) : ?>
     <div class="playlist_song_item">
-        <!-- بخش URL آهنگ -->
         <div class="song-url-wrapper">
-            <input type="text" name="playlist_songs[url][]" value="<?php echo esc_attr($song['url']); ?>"
+            <input type="hidden" name="playlist_songs[attachment_id][]"
+                value="<?php echo esc_attr($song->song_id); ?>" />
+            <input type="text" value="<?php echo esc_attr(wp_get_attachment_url($song->song_id)); ?>"
                 class="playlist_song_input" readonly />
         </div>
-        <!-- بخش اقدامات پلی‌لیست -->
         <div class="playlist-actions">
-            <!-- باکس چک‌باکس‌ها برای انتخاب پلی‌لیست‌ها -->
             <div class="playlist-checkboxes">
                 <p><?php _e('Select Playlists:', 'music-playlist'); ?></p>
                 <div class="checkbox-list">
-                    <?php 
-                            // پیمایش پلی‌لیست‌ها برای ایجاد چک‌باکس‌ها
-                            foreach ($playlists as $playlist) : 
-                            ?>
+                    <?php foreach ($playlists as $playlist) : ?>
                     <label class="checkbox-item">
                         <input type="checkbox" name="playlist_songs[playlists][<?php echo $index; ?>][]"
-                            value="<?php echo $playlist->ID; ?>"
-                            <?php echo in_array($playlist->ID, $song['playlists'] ?? []) ? 'checked' : ''; ?> />
+                            value="<?php echo $playlist->ID; ?>" <?php
+                                                   $is_in_playlist = $wpdb->get_var($wpdb->prepare(
+                                                       "SELECT id FROM $table_name WHERE playlist_id = %d AND song_id = %d",
+                                                       $playlist->ID, $song->song_id
+                                                   ));
+                                                   echo $is_in_playlist ? 'checked' : '';
+                                                   ?> />
                         <?php echo esc_html($playlist->post_title); ?>
                     </label>
                     <?php endforeach; ?>
                 </div>
             </div>
-            <!-- بخش ایجاد پلی‌لیست جدید -->
             <div class="new-playlist-wrapper">
                 <input type="text" class="new_playlist_input"
                     placeholder="<?php _e('New Playlist', 'music-playlist'); ?>" />
                 <button type="button" class="button add_new_playlist_button">
-                    <span class="dashicons dashicons-plus-alt"></span>
-                    <?php _e('Add', 'music-playlist'); ?>
+                    <span class="dashicons dashicons-plus-alt"></span> <?php _e('Add', 'music-playlist'); ?>
                 </button>
             </div>
-            <!-- دکمه حذف آهنگ -->
             <button type="button" class="button remove_song_button">
-                <span class="dashicons dashicons-trash"></span>
-                <?php _e('Remove', 'music-playlist'); ?>
+                <span class="dashicons dashicons-trash"></span> <?php _e('Remove', 'music-playlist'); ?>
             </button>
         </div>
     </div>
-    <?php 
-                endif; 
-            endforeach; 
-            ?>
+    <?php endforeach; ?>
+    <?php else : ?>
+    <p><?php _e('No songs added to this playlist.', 'music-playlist'); ?></p>
+    <?php endif; ?>
 </div>
-<!-- دکمه افزودن چندین آهنگ -->
-<p>
-    <button type="button" id="add_multiple_songs_button">
+<p><button type="button" id="add_multiple_songs_button">
         <?php _e('Add Multiple Songs', 'music-playlist'); ?>
-    </button>
-</p>
+    </button></p>
 <?php
     }
 
-    /**
-     * متد خصوصی برای دریافت ID پست پلی‌لیست "همه آهنگ‌ها"
-     * 
-     * @return int ID پست یا 0 در صورت عدم وجود
-     */
     private function get_all_songs_post_id() {
-        // دریافت پست‌هایی که متادیتای '_is_all_songs_playlist' دارند
         $posts = get_posts([
-            'post_type'   => 'playlist', // نوع پست
-            'meta_key'    => '_is_all_songs_playlist', // کلید متادیتا
-            'meta_value'  => true, // مقدار متادیتا
-            'numberposts' => 1, // فقط یک پست
-            'post_status' => 'publish', // فقط پست‌های منتشرشده
+            'post_type' => 'playlist',
+            'meta_key' => '_is_all_songs_playlist',
+            'meta_value' => true,
+            'numberposts' => 1,
+            'post_status' => 'publish',
         ]);
-
-        // بازگشت ID پست یا 0 در صورت عدم وجود
         return !empty($posts) ? $posts[0]->ID : 0;
     }
 }

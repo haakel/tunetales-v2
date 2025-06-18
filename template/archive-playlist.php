@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) exit('Access denied.');
 
 <body <?php body_class('tunetales-player'); ?>>
     <?php
-    $songs = [];
+    $songs_array = []; // استفاده از songs_array برای سازگاری
     $is_archive = true;
     include 'playlist-template.php';
     wp_footer();
