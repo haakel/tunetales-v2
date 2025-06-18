@@ -4,6 +4,7 @@
 Plugin Name: TuneTales Music Playlist
 Description: پلاگین ساخت پلی‌لیست با پست‌تایپ برای TuneTales
 Author: Haakel
+version:2.0
 */
 
 // تعریف فضای نام برای جلوگیری از تداخل با سایر پلاگین‌ها یا قالب‌ها
