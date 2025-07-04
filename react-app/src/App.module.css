@@ -1,0 +1,13 @@
+/* App.module.css */
+.appContainer {
+  padding: 20px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.title {
+  color: #333;
+  font-family: Arial, sans-serif;
+}

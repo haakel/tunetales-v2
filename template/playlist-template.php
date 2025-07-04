@@ -1,9 +1,17 @@
 <?php
 // لاگ برای دیباگ آرایه songs_array
-error_log('TuneTales: songs_array = ' . print_r($songs_array, true));
+// error_log('TuneTales: songs_array = ' . print_r($songs_array, true));
 
-$songs = isset($songs_array) ? $songs_array : [];
-$is_archive = is_post_type_archive('playlist');
+// $songs = isset($songs_array) ? $songs_array : [];
+// $is_archive = is_post_type_archive('playlist');
+?>
+<div id="tunetales-react-player-root">
+    <!-- L'application React sera rendue ici -->
+</div>
+
+<?php
+// Le reste du contenu original est conservé pour l'instant.
+// Il sera remplacé ou supprimé progressivement à mesure que les composants React seront développés.
 ?>
 <div class="webapp-player" id="tunetales-player">
     <div class="webapp-player">

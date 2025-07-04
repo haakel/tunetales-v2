@@ -75,27 +75,112 @@ class Music_Playlist_Assets {
             );
 
             // بارگذاری اسکریپت‌های سفارشی پلی‌لیست
+            // wp_enqueue_script(
+            //     'playlist-custom-script', // شناسه اسکریپت
+            //     plugin_dir_url(dirname(__FILE__)) . 'assets/js/playlist-script.js', // مسیر فایل
+            //     ['jquery'], // وابستگی‌ها
+            //     '1.0', // نسخه
+            //     true // بارگذاری در فوتر
+            // );
+
+            // Enqueue le bundle React
             wp_enqueue_script(
-                'playlist-custom-script', // شناسه اسکریپت
-                plugin_dir_url(dirname(__FILE__)) . 'assets/js/playlist-script.js', // مسیر فایل
-                ['jquery'], // وابستگی‌ها
-                '1.0', // نسخه
-                true // بارگذاری در فوتر
+                'tunetales-react-player-script',
+                plugin_dir_url(dirname(__FILE__)) . 'react-app/dist/bundle.js',
+                [], // TODO: Ajouter 'wp-element' si React est dégroupé de WordPress
+                '0.1.0',
+                true
             );
 
-            // بارگذاری کتابخانه Font Awesome برای آیکون‌ها
+            // بارگذاری کتابخانه Font Awesome برای آیکون‌ها (peut être géré via React plus tard)
             wp_enqueue_style(
                 'font-awesome', 
                 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css'
             );
 
-        // ارسال داده‌ها به اسکریپت جاوااسکریپت
-        wp_localize_script('playlist-custom-script', 'tunetales_vars', [
-            'ajaxurl' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('playlist-nonce'),
-            'plugin_url' => plugin_dir_url(dirname(__FILE__)),
-            'archive_url' => get_post_type_archive_link('playlist'),
-        ]);
+            // ارسال داده‌ها به اسکریپت React
+            $localized_data = [
+                'ajaxurl' => admin_url('admin-ajax.php'),
+                'nonce' => wp_create_nonce('wp_rest'), // Utiliser le nonce REST API si possible, sinon un nonce personnalisé
+                'plugin_url' => plugin_dir_url(dirname(dirname(__FILE__))), // URL racine du plugin
+                'archive_url' => get_post_type_archive_link('playlist'),
+                'is_archive_page' => is_post_type_archive('playlist'),
+                'current_post_id' => is_singular('playlist') ? get_the_ID() : null,
+            ];
+
+            // Si nous sommes sur une page de playlist unique, passons les données des chansons
+            if (is_singular('playlist')) {
+                global $wpdb;
+                $table_name = $wpdb->prefix . 'playlist_songs'; // Assurez-vous que c'est la bonne table/méthode de stockage
+                // Ceci est un exemple basé sur la structure de table précédente.
+                // Adaptez ceci à la façon dont les chansons sont réellement stockées et récupérées.
+                $raw_songs = $wpdb->get_results($wpdb->prepare(
+                    "SELECT song_id FROM $table_name WHERE playlist_id = %d",
+                    get_the_ID()
+                ));
+                
+                $songs_data = array_map(function($song_row) {
+                    $attachment_id = $song_row->song_id;
+                    $attachment = get_post($attachment_id);
+                    if (!$attachment) return null;
+
+                    return [
+                        'id' => $attachment_id,
+                        'src' => wp_get_attachment_url($attachment_id),
+                        'title' => get_the_title($attachment_id) ?: 'Unknown Title',
+                        'artist' => get_post_meta($attachment_id, '_song_artist', true) ?: 'Unknown Artist',
+                        'album' => get_post_meta($attachment_id, '_song_album', true) ?: 'Unknown Album',
+                        'description' => $attachment->post_content ?: '',
+                        'excerpt' => $attachment->post_excerpt ?: '',
+                        // Obtenir l'URL de la miniature (cover art)
+                        'cover_art_url' => get_the_post_thumbnail_url($attachment_id, 'medium') ?: plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/image/default-cover.jpg',
+                    ];
+                }, $raw_songs);
+
+                $localized_data['songs'] = array_filter($songs_data); // Supprimer les chansons nulles si une pièce jointe n'a pas été trouvée
+                
+                // Passer également les informations de la playlist actuelle
+                $current_playlist_post = get_post(get_the_ID());
+                if ($current_playlist_post) {
+                    $localized_data['current_playlist_info'] = [
+                        'id' => $current_playlist_post->ID,
+                        'title' => $current_playlist_post->post_title,
+                        'thumbnail_url' => get_the_post_thumbnail_url($current_playlist_post->ID, 'medium') ?: plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/image/default-playlist.jpg',
+                    ];
+                }
+
+            } else if (is_post_type_archive('playlist')) {
+                // Pour la page d'archive, passons une liste de toutes les playlists
+                $playlists_query = new \WP_Query([
+                    'post_type' => 'playlist', 
+                    'posts_per_page' => -1,
+                    'post_status' => 'publish'
+                ]);
+                $all_playlists_data = [];
+                if ($playlists_query->have_posts()) {
+                    while($playlists_query->have_posts()) {
+                        $playlists_query->the_post();
+                        global $wpdb;
+                        // Note: Cette requête N+1 pour le nombre de chansons devrait être optimisée à l'avenir
+                        $table_name = $wpdb->prefix . 'playlist_songs'; 
+                        $song_count = $wpdb->get_var($wpdb->prepare(
+                            "SELECT COUNT(*) FROM $table_name WHERE playlist_id = %d",
+                            get_the_ID()
+                        ));
+                        $all_playlists_data[] = [
+                            'id' => get_the_ID(),
+                            'title' => get_the_title(),
+                            'permalink' => get_permalink(),
+                            'thumbnail_url' => get_the_post_thumbnail_url(get_the_ID(), 'medium') ?: plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/image/default-playlist.jpg',
+                            'song_count' => $song_count ?: 0,
+                        ];
+                    }
+                }
+                wp_reset_postdata();
+                $localized_data['playlists'] = $all_playlists_data;
+            }
+
+            wp_localize_script('tunetales-react-player-script', 'tunetalesReact', $localized_data);
         }
     }
 

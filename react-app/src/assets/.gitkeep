@@ -1,0 +1,3 @@
+// Ce répertoire peut être utilisé pour les ressources statiques spécifiques à l'application React (polices, images)
+// qui ne sont pas gérées via la médiathèque de WordPress.
+// Le fichier .gitkeep assure que le répertoire est suivi par Git même s'il est vide.

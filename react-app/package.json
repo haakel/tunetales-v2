@@ -1,0 +1,33 @@
+{
+  "name": "tunetales-react-player",
+  "version": "0.1.0",
+  "private": true,
+  "description": "React UI for TuneTales Music Playlist WordPress Plugin",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "webpack --mode development --watch",
+    "build": "webpack --mode production"
+  },
+  "keywords": [
+    "react",
+    "wordpress",
+    "plugin",
+    "music-player"
+  ],
+  "author": "Your Name or Team Name",
+  "license": "GPL-2.0-or-later",
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.23.0",
+    "@babel/preset-env": "^7.23.0",
+    "@babel/preset-react": "^7.22.15",
+    "babel-loader": "^9.1.3",
+    "css-loader": "^6.8.1",
+    "style-loader": "^3.3.3",
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4"
+  }
+}
